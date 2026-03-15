@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prototype Hospital Information System by MSH</title>
+  <style>
+    :root{
+      --blue:#145da0;
+      --blue-dark:#0c2d48;
+      --blue-soft:#edf6ff;
+      --yellow:#ffd54f;
+      --yellow-soft:#fff7cf;
+      --white:#ffffff;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#d7dee8;
+      --danger:#c62828;
+      --success:#1b5e20;
+      --shadow:0 10px 25px rgba(0,0,0,.10);
+      --radius:14px;
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial, Helvetica, sans-serif;
+      color:var(--text);
+      background:linear-gradient(180deg, #f9fbff 0%, #eef6ff 100%);
+    }
+
+    .hidden{display:none !important}
+    .danger{color:var(--danger)!important;font-weight:700}
+    .success{color:var(--success)!important;font-weight:700}
+    .muted{color:var(--muted)}
+    .center{text-align:center}
+    .nowrap{white-space:nowrap}
+
+    .topbar{
+      background:linear-gradient(90deg, var(--blue-dark), var(--blue));
+      color:#fff;
+      padding:16px 22px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      position:sticky;
+      top:0;
+      z-index:30;
+      box-shadow:var(--shadow);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      font-weight:700;
+      font-size:20px;
+      line-height:1.2;
+    }
+
+    .brand-badge{
+      background:var(--yellow);
+      color:#111;
+      border-radius:12px;
+      padding:8px 11px;
+      font-weight:800;
+    }
+
+    .topbar-actions{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    button{
+      border:none;
+      border-radius:10px;
+      padding:10px 14px;
+      font-weight:700;
+      cursor:pointer;
+      transition:.18s ease;
+    }
+    button:hover{transform:translateY(-1px)}
+    .btn-primary{background:var(--yellow); color:#111}
+    .btn-secondary{background:#fff; color:var(--blue-dark)}
+    .btn-danger{background:#d32f2f; color:#fff}
+    .btn-blue{background:var(--blue); color:#fff}
+
+    .login-wrap{
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:24px;
+      background:linear-gradient(140deg, #eef7ff, #fffbe0);
+    }
+
+    .login-card{
+      width:min(460px, 100%);
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:28px;
+      box-shadow:var(--shadow);
+    }
+
+    .login-card h1{
+      margin:0 0 8px;
+      color:var(--blue-dark);
+    }
+
+    .login-card p{
+      color:var(--muted);
+      margin-top:0;
+    }
+
+    .grid{display:grid; gap:14px}
+    .grid-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .grid-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .grid-4{grid-template-columns:repeat(4,minmax(0,1fr))}
+    .grid-5{grid-template-columns:repeat(5,minmax(0,1fr))}
+
+    label{
+      display:block;
+      margin-bottom:6px;
+      font-size:13px;
+      font-weight:700;
+    }
+
+    input, select, textarea{
+      width:100%;
+      border:1px solid var(--border);
+      border-radius:10px;
+      padding:10px 12px;
+      font-size:14px;
+      outline:none;
+      background:#fff;
+    }
+
+    input:focus, select:focus, textarea:focus{
+      border-color:var(--blue);
+      box-shadow:0 0 0 3px rgba(20,93,160,.12);
+    }
+
+    textarea{
+      min-height:88px;
+      resize:vertical;
+    }
+
+    .app{
+      display:grid;
+      grid-template-columns:290px 1fr;
+      min-height:calc(100vh - 74px);
+    }
+
+    .sidebar{
+      background:#fff;
+      border-right:1px solid var(--border);
+      padding:18px;
+    }
+
+    .menu-title{
+      font-size:12px;
+      text-transform:uppercase;
+      color:var(--muted);
+      letter-spacing:.08em;
+      margin:0 0 10px;
+    }
+
+    .menu button{
+      width:100%;
+      margin-bottom:10px;
+      text-align:left;
+      background:var(--blue-soft);
+      color:var(--blue-dark);
+      border:1px solid #d8e8ff;
+    }
+
+    .menu button.active{
+      background:linear-gradient(90deg, var(--yellow-soft), #fffdf0);
+      border:1px solid #f1d56b;
+      color:#111;
+    }
+
+    .content{
+      padding:22px;
+    }
+
+    .page{display:none}
+    .page.active{display:block; animation:fadeIn .22s ease}
+
+    @keyframes fadeIn{
+      from{opacity:0;transform:translateY(6px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    .card{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      padding:18px;
+      margin-bottom:18px;
+    }
+
+    .card h2, .card h3{
+      margin-top:0;
+      color:var(--blue-dark);
+    }
+
+    .summary-box{
+      background:var(--blue-soft);
+      border-left:6px solid var(--yellow);
+      border-radius:10px;
+      padding:12px 14px;
+    }
+
+    .metric-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:14px;
+      margin-top:14px;
+    }
+
+    .metric{
+      background:#fff;
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+
+    .metric .k{
+      font-size:12px;
+      color:var(--muted);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+
+    .metric .v{
+      font-size:28px;
+      font-weight:800;
+      color:var(--blue-dark);
+      margin-top:6px;
+    }
+
+    .flag-list{
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px;
+    }
+
+    .flag{
+      border-radius:999px;
+      padding:6px 10px;
+      font-size:12px;
+      font-weight:700;
+      border:1px solid var(--border);
+      background:#f8fafc;
+    }
+
+    .flag.warn{
+      background:#fff3cd;
+      border-color:#ffe08a;
+      color:#8a5a00;
+    }
+
+    .flag.red{
+      background:#ffebee;
+      border-color:#ffcdd2;
+      color:#b71c1c;
+    }
+
+    .flag.green{
+      background:#e8f5e9;
+      border-color:#c8e6c9;
+      color:#1b5e20;
+    }
+
+    .table-wrap{overflow:auto}
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      background:#fff;
+    }
+
+    th, td{
+      border:1px solid var(--border);
+      padding:10px;
+      text-align:left;
+      vertical-align:top;
+      font-size:14px;
+    }
+
+    th{
+      background:var(--yellow-soft);
+      color:#111;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+      background:#eef2ff;
+      color:#3730a3;
+    }
+
+    .pill-danger{
+      display:inline-block;
+      background:#ffebee;
+      color:#b71c1c;
+      border:1px solid #ffcdd2;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .pill-normal{
+      display:inline-block;
+      background:#e8f5e9;
+      color:#1b5e20;
+      border:1px solid #c8e6c9;
+      padding:4px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:700;
+    }
+
+    .search-row{
+      display:grid;
+      grid-template-columns:2fr auto auto;
+      gap:10px;
+      margin-top:12px;
+    }
+
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.48);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      padding:18px;
+      z-index:99;
+    }
+
+    .modal{
+      width:min(840px, 100%);
+      max-height:90vh;
+      overflow:auto;
+      background:#fff;
+      border-radius:18px;
+      padding:24px;
+      box-shadow:0 20px 45px rgba(0,0,0,.25);
+    }
+
+    .small{font-size:12px}
+
+    .print-sheet{
+      background:#fff;
+      color:#000;
+      padding:20px;
+      border:1px solid var(--border);
+      border-radius:14px;
+    }
+
+    .print-sheet h1, .print-sheet h2, .print-sheet h3{
+      margin:0 0 10px;
+      color:#000;
+    }
+
+    .print-table{
+      width:100%;
+      border-collapse:collapse;
+      margin-top:8px;
+    }
+
+    .print-table th, .print-table td{
+      border:1px solid #000;
+      padding:6px 8px;
+      font-size:12px;
+    }
+
+    .section-title{
+      font-weight:800;
+      margin:14px 0 8px;
+      color:var(--blue-dark);
+    }
+
+    .subtle{
+      background:#f8fbff;
+      border:1px dashed #c9d9ee;
+      border-radius:10px;
+      padding:10px 12px;
+    }
+
+    @media (max-width: 1024px){
+      .app{grid-template-columns:1fr}
+      .sidebar{border-right:none;border-bottom:1px solid var(--border)}
+      .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .grid-2,.grid-3,.grid-4,.grid-5,.search-row{grid-template-columns:1fr}
+      .topbar{position:static}
+    }
+
+    @media print{
+      body *{visibility:hidden}
+      #printableChart, #printableChart *{visibility:visible}
+      #printableChart{
+        position:absolute;
+        left:0;
+        top:0;
+        width:100%;
+        background:#fff;
+        padding:0;
+        margin:0;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loginScreen" class="login-wrap">
+    <div class="login-card">
+      <div class="brand" style="margin-bottom:14px;">
+        <div class="brand-badge">MSH</div>
+        <div>Prototype Hospital Information System</div>
+      </div>
+      <h1>Log In</h1>
+      <p>Authorized use only.</p>
+
+      <div class="grid">
+        <div>
+          <label for="loginUser">Username</label>
+          <input id="loginUser" type="text" autocomplete="username">
+        </div>
+        <div>
+          <label for="loginPass">Password</label>
+          <input id="loginPass" type="password" autocomplete="current-password">
+        </div>
+      </div>
+
+      <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn-primary" id="loginBtn">Log In</button>
+        <button class="btn-secondary" id="resetAllBtn" type="button">Reset All Local Records</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="privacyModal" class="modal-backdrop hidden">
+    <div class="modal">
+      <h2 style="margin-top:0; color:var(--blue-dark);">Data Privacy Notice</h2>
+
+      <p>
+        This Prototype Hospital Information System by MSH collects patient information for healthcare documentation,
+        continuity of care, patient monitoring, treatment planning, clinical communication, and institutional record keeping.
+      </p>
+
+      <p>
+        Data is collected through direct user input by authorized personnel, including but not limited to patient demographic details,
+        assessments, nurses’ notes, medication records, laboratory data, doctor’s orders, vital signs, intake and output records,
+        and related clinical documentation.
+      </p>
+
+      <p>
+        The information entered in this system shall be used only for legitimate healthcare, academic, clinical simulation,
+        and authorized patient-care-related purposes, in accordance with confidentiality obligations and applicable privacy standards.
+      </p>
+
+      <p>
+        Records shall be retained and disposed of in accordance with applicable retention requirements. For this prototype notice,
+        patient records may be retained for up to <b>25 years</b>, or released and transferred when there is a lawful
+        <b>transfer of care to another hospital or healthcare facility</b>, subject to proper authorization and documentation.
+      </p>
+
+      <p>
+        By clicking <b>I Agree</b>, the user acknowledges responsibility to protect patient confidentiality and to use this system
+        only within authorized and ethical healthcare practice.
+      </p>
+
+      <label style="display:flex; gap:10px; align-items:flex-start; font-weight:normal;">
+        <input id="dontShowPrivacyAgain" type="checkbox" style="width:auto; margin-top:2px;">
+        <span>Do not show this notice again on this device</span>
+      </label>
+
+      <div style="margin-top:18px; display:flex; justify-content:flex-end; gap:10px;">
+        <button class="btn-danger" id="declinePrivacyBtn">Decline</button>
+        <button class="btn-primary" id="agreePrivacyBtn">I Agree</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="appShell" class="hidden">
+    <div class="topbar">
+      <div class="brand">
+        <div class="brand-badge">MSH</div>
+        <div>Prototype Hospital Information System by MSH</div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-secondary" id="newPatientBtn">New Patient Record</button>
+        <button class="btn-secondary" id="exportBtn">Export JSON</button>
+        <button class="btn-secondary" id="printChartBtn">Print Patient Chart</button>
+        <button class="btn-primary" id="logoutBtn">Log Out</button>
+      </div>
+    </div>
+
+    <div class="app">
+      <aside class="sidebar">
+        <div class="menu-title">Modules</div>
+        <div class="menu" id="menu">
+          <button data-page="dashboardPage" class="active">Dashboard</button>
+          <button data-page="patientSearchPage">Search Patient</button>
+          <button data-page="demographicPage">Patient Demographic Profile</button>
+          <button data-page="headToToePage">Head-to-Toe Assessment</button>
+          <button data-page="vitalsPage">Vital Signs Record</button>
+          <button data-page="ivPage">IV Sheet / IV Fluids Menu</button>
+          <button data-page="medPage">Medication Sheet</button>
+          <button data-page="doctorsOrderPage">Doctor’s Order Sheet</button>
+          <button data-page="nursesNotesPage">Nurses Notes (SOAPIE)</button>
+          <button data-page="labPage">Laboratory Sheet</button>
+          <button data-page="ioPage">I &amp; O Sheet</button>
+          <button data-page="printablePage">Printable Patient Chart View</button>
+        </div>
+      </aside>
+
+      <main class="content">
+        <section id="dashboardPage" class="page active">
+          <div class="card">
+            <h2>Dashboard</h2>
+            <div id="patientSummary" class="summary-box">No patient selected yet.</div>
+
+            <div class="metric-grid">
+              <div class="metric">
+                <div class="k">Patients Stored</div>
+                <div class="v" id="metricPatients">0</div>
+              </div>
+              <div class="metric">
+                <div class="k">Vital Sign Entries</div>
+                <div class="v" id="metricVitals">0</div>
+              </div>
+              <div class="metric">
+                <div class="k">Medication Entries</div>
+                <div class="v" id="metricMeds">0</div>
+              </div>
+              <div class="metric">
+                <div class="k">Nurses Notes</div>
+                <div class="v" id="metricNotes">0</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-2">
+            <div class="card">
+              <h3>Patient Safety Tags</h3>
+              <div id="dashboardFlags" class="flag-list">
+                <span class="flag">No tags yet</span>
+              </div>
+            </div>
+            <div class="card">
+              <h3>Quick Use Guide</h3>
+              <div class="subtle">
+                1. Create or select a patient.<br>
+                2. Complete demographic profile.<br>
+                3. Complete head-to-toe assessment.<br>
+                4. Add vital signs, medications, orders, labs, and nurses’ notes.<br>
+                5. Open Printable Patient Chart View when ready.
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section id="patientSearchPage" class="page">
+          <div class="card">
+            <h2>Search Patient</h2>
+            <div class="search-row">
+              <input id="patientSearchInput" type="text" placeholder="Search by patient name or hospital number">
+              <button class="btn-primary" id="patientSearchBtn">Search</button>
+              <button class="btn-secondary" id="patientSearchClearBtn">Show All</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Stored Patients</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Patient Name</th>
+                    <th>Hospital Number</th>
+                    <th>Age</th>
+                    <th>Sex</th>
+                    <th>Admitting Diagnosis</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody id="patientSearchResults"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="demographicPage" class="page">
+          <div class="card">
+            <h2>Patient Demographic Profile</h2>
+
+            <div class="grid grid-3">
+              <div>
+                <label>Patient Name</label>
+                <input id="patientName" type="text">
+              </div>
+              <div>
+                <label>Birthday</label>
+                <input id="birthday" type="date">
+              </div>
+              <div>
+                <label>Age (auto-computed Y-M-D)</label>
+                <input id="ageDisplay" type="text" readonly>
+              </div>
+
+              <div>
+                <label>Sex</label>
+                <select id="sex">
+                  <option value="">Select</option>
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+              <div>
+                <label>Religion</label>
+                <input id="religion" type="text">
+              </div>
+              <div>
+                <label>Hospital Number</label>
+                <input id="hospitalNumber" type="text">
+              </div>
+
+              <div>
+                <label>Municipality / City</label>
+                <select id="municipality">
+                  <option value="">Select</option>
+                  <option value="Imus">Imus</option>
+                  <option value="Bacoor">Bacoor</option>
+                  <option value="Dasmariñas">Dasmariñas</option>
+                  <option value="General Trias">General Trias</option>
+                  <option value="Kawit">Kawit</option>
+                  <option value="Noveleta">Noveleta</option>
+                  <option value="Rosario">Rosario</option>
+                  <option value="Tanza">Tanza</option>
+                  <option value="Trece Martires">Trece Martires</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+              <div>
+                <label>Barangay</label>
+                <select id="barangay">
+                  <option value="">Select municipality first</option>
+                </select>
+              </div>
+              <div>
+                <label>Full Address / Street / House No.</label>
+                <input id="streetAddress" type="text">
+              </div>
+
+              <div>
+                <label>Chief Complaint (CC)</label>
+                <input id="cc" type="text">
+              </div>
+              <div>
+                <label>Admitting Diagnosis</label>
+                <input id="admittingDiagnosis" type="text">
+              </div>
+              <div>
+                <label>Other Diagnoses</label>
+                <input id="otherDiagnoses" type="text">
+              </div>
+
+              <div>
+                <label>Allergies (Food, Meds, Scents, Particles, Others)</label>
+                <input id="allergies" type="text">
+              </div>
+              <div>
+                <label>Reaction to Allergies</label>
+                <input id="allergyReaction" type="text">
+              </div>
+              <div>
+                <label>Diet</label>
+                <input id="diet" type="text">
+              </div>
+
+              <div style="grid-column: span 2;">
+                <label>Contact in Case of Emergency</label>
+                <input id="emergencyContact" type="text" placeholder="Name / Relationship / Contact Number">
+              </div>
+              <div>
+                <label>Date &amp; Time of Admission</label>
+                <input id="admissionDateTime" type="datetime-local">
+              </div>
+            </div>
+
+            <div class="section-title">Patient Tags / Special Precautions</div>
+            <div class="grid grid-4">
+              <label style="display:flex; gap:8px; align-items:center; font-weight:normal;">
+                <input id="tagFallRisk" type="checkbox" style="width:auto;"> Risk for Fall
+              </label>
+              <label style="display:flex; gap:8px; align-items:center; font-weight:normal;">
+                <input id="tagPsych" type="checkbox" style="width:auto;"> Psychiatric Patient
+              </label>
+              <label style="display:flex; gap:8px; align-items:center; font-weight:normal;">
+                <input id="tagCloseMonitoring" type="checkbox" style="width:auto;"> Close Monitoring
+              </label>
+              <label style="display:flex; gap:8px; align-items:center; font-weight:normal;">
+                <input id="tagIsolation" type="checkbox" style="width:auto;"> Isolation Precaution
+              </label>
+              <label style="display:flex; gap:8px; align-items:center; font-weight:normal;">
+                <input id="tagSeizure" type="checkbox" style="width:auto;"> Seizure Precaution
+              </label>
+              <label style="display:flex; gap:8px; align-items:center; font-weight:normal;">
+                <input id="tagAspiration" type="checkbox" style="width:auto;"> Aspiration Precaution
+              </label>
+              <label style="display:flex; gap:8px; align-items:center; font-weight:normal;">
+                <input id="tagBleeding" type="checkbox" style="width:auto;"> Bleeding Precaution
+              </label>
+              <label style="display:flex; gap:8px; align-items:center; font-weight:normal;">
+                <input id="tagOtherPrecautionToggle" type="checkbox" style="width:auto;"> Other Precaution
+              </label>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label>Other Precaution Details</label>
+              <input id="tagOtherPrecautionText" type="text">
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="saveDemographicBtn">Save Demographic Profile</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="headToToePage" class="page">
+          <div class="card">
+            <h2>Head-to-Toe Assessment</h2>
+            <p class="muted">Complete once before entering vital signs.</p>
+
+            <div class="grid grid-2">
+              <div><label>General Appearance</label><textarea id="httGeneral"></textarea></div>
+              <div><label>Neurologic / Mental Status</label><textarea id="httNeuro"></textarea></div>
+              <div><label>HEENT</label><textarea id="httHeent"></textarea></div>
+              <div><label>Respiratory</label><textarea id="httResp"></textarea></div>
+              <div><label>Cardiovascular</label><textarea id="httCardio"></textarea></div>
+              <div><label>Gastrointestinal</label><textarea id="httGi"></textarea></div>
+              <div><label>Genitourinary</label><textarea id="httGu"></textarea></div>
+              <div><label>Musculoskeletal</label><textarea id="httMs"></textarea></div>
+              <div><label>Skin / Integumentary</label><textarea id="httSkin"></textarea></div>
+              <div><label>Lines / Tubes / Drains / Devices</label><textarea id="httLines"></textarea></div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="saveHeadToToeBtn">Save Head-to-Toe Assessment</button>
+            </div>
+          </div>
+        </section>
+
+        <section id="vitalsPage" class="page">
+          <div class="card">
+            <h2>Vital Signs Record</h2>
+            <p class="muted">Out-of-range values are highlighted in red based on age group.</p>
+
+            <div class="grid grid-4">
+              <div><label>Date</label><input id="vsDate" type="date"></div>
+              <div><label>Time Taken</label><input id="vsTime" type="time"></div>
+              <div>
+                <label>Shift</label>
+                <select id="vsShift">
+                  <option value="">Select</option>
+                  <option>6-2</option>
+                  <option>2-10</option>
+                  <option>10-6</option>
+                </select>
+              </div>
+              <div><label>Temperature (°C)</label><input id="vsTemp" type="number" step="0.1"></div>
+              <div><label>Pulse / HR</label><input id="vsPulse" type="number"></div>
+              <div><label>Respiratory Rate</label><input id="vsResp" type="number"></div>
+              <div><label>Blood Pressure</label><input id="vsBP" type="text" placeholder="e.g. 120/80"></div>
+              <div><label>O2 Saturation (%)</label><input id="vsO2" type="number"></div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="addVitalsBtn">Add Vital Signs Entry</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Vital Signs Entries</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Shift</th>
+                    <th>Temp</th>
+                    <th>Pulse</th>
+                    <th>Resp</th>
+                    <th>BP</th>
+                    <th>O2 Sat</th>
+                    <th>Assessment</th>
+                  </tr>
+                </thead>
+                <tbody id="vitalsTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="ivPage" class="page">
+          <div class="card">
+            <h2>IV Sheet / IV Fluids Menu</h2>
+
+            <div class="grid grid-4">
+              <div><label>Date</label><input id="ivDate" type="date"></div>
+              <div><label>Time Started</label><input id="ivTime" type="time"></div>
+              <div>
+                <label>IV Fluid</label>
+                <select id="ivFluid">
+                  <option value="">Select</option>
+                  <option>PNSS</option>
+                  <option>D5LR</option>
+                  <option>D5NSS</option>
+                  <option>Lactated Ringer's</option>
+                  <option>D5W</option>
+                  <option>PLR</option>
+                  <option>Others</option>
+                </select>
+              </div>
+              <div><label>Volume (mL)</label><input id="ivVolume" type="number"></div>
+              <div><label>Rate (mL/hr)</label><input id="ivRate" type="number"></div>
+              <div><label>Site</label><input id="ivSite" type="text"></div>
+              <div><label>Patency / Remarks</label><input id="ivRemarks" type="text"></div>
+              <div><label>Nurse</label><input id="ivNurse" type="text"></div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="addIvBtn">Add IV Entry</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>IV Entries</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Fluid</th>
+                    <th>Volume</th>
+                    <th>Rate</th>
+                    <th>Site</th>
+                    <th>Remarks</th>
+                    <th>Nurse</th>
+                  </tr>
+                </thead>
+                <tbody id="ivTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="medPage" class="page">
+          <div class="card">
+            <h2>Medication Sheet</h2>
+
+            <div class="grid grid-4">
+              <div><label>Date</label><input id="medDate" type="date"></div>
+              <div><label>Medication Name</label><input id="medName" type="text"></div>
+              <div>
+                <label>Route</label>
+                <select id="medRoute">
+                  <option value="">Select</option>
+                  <option>PO</option>
+                  <option>IV</option>
+                  <option>IM</option>
+                  <option>SC</option>
+                  <option>Inhalation</option>
+                  <option>Topical</option>
+                  <option>Others</option>
+                </select>
+              </div>
+              <div><label>Dosage</label><input id="medDose" type="text"></div>
+              <div><label>Frequency</label><input id="medFrequency" type="text" placeholder="e.g. OD, BID, q6h"></div>
+              <div><label>Time</label><input id="medTime" type="time"></div>
+              <div>
+                <label>Type</label>
+                <select id="medType">
+                  <option value="">Select</option>
+                  <option>Routine</option>
+                  <option>PRN</option>
+                  <option>STAT</option>
+                </select>
+              </div>
+              <div>
+                <label>Given?</label>
+                <select id="medGiven">
+                  <option value="">Select</option>
+                  <option>Yes</option>
+                  <option>No</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="addMedBtn">Add Medication</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Medication Entries</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Medication</th>
+                    <th>Route</th>
+                    <th>Dose</th>
+                    <th>Frequency</th>
+                    <th>Time</th>
+                    <th>Type</th>
+                    <th>Given</th>
+                  </tr>
+                </thead>
+                <tbody id="medTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="doctorsOrderPage" class="page">
+          <div class="card">
+            <h2>Doctor’s Order Sheet</h2>
+
+            <div class="grid grid-3">
+              <div><label>Date</label><input id="docOrderDate" type="date"></div>
+              <div><label>Time</label><input id="docOrderTime" type="time"></div>
+              <div><label>Ordering Physician</label><input id="docOrderPhysician" type="text"></div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label>Doctor’s Order</label>
+              <textarea id="docOrderText"></textarea>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label>Noted / Carried Out By</label>
+              <input id="docOrderNurse" type="text">
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="addDocOrderBtn">Add Doctor’s Order</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Doctor’s Orders</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Physician</th>
+                    <th>Order</th>
+                    <th>Carried Out By</th>
+                  </tr>
+                </thead>
+                <tbody id="docOrderTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="nursesNotesPage" class="page">
+          <div class="card">
+            <h2>Nurses Notes (SOAPIE)</h2>
+
+            <div class="grid grid-3">
+              <div><label>Date</label><input id="nnDate" type="date"></div>
+              <div><label>Time</label><input id="nnTime" type="time"></div>
+              <div>
+                <label>Shift</label>
+                <select id="nnShift">
+                  <option value="">Select</option>
+                  <option>6-2</option>
+                  <option>2-10</option>
+                  <option>10-6</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-2" style="margin-top:12px;">
+              <div><label>S - Subjective</label><textarea id="nnS"></textarea></div>
+              <div><label>O - Objective</label><textarea id="nnO"></textarea></div>
+              <div><label>A - Assessment</label><textarea id="nnA"></textarea></div>
+              <div><label>P - Plan</label><textarea id="nnP"></textarea></div>
+              <div><label>I - Intervention</label><textarea id="nnI"></textarea></div>
+              <div><label>E - Evaluation</label><textarea id="nnE"></textarea></div>
+            </div>
+
+            <div style="margin-top:12px;">
+              <label>Documented By</label>
+              <input id="nnAuthor" type="text">
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="addNnBtn">Add Nurses Note</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Nurses Notes Entries</h3>
+            <div id="nursesNotesList"></div>
+          </div>
+        </section>
+
+        <section id="labPage" class="page">
+          <div class="card">
+            <h2>Laboratory Sheet</h2>
+
+            <div class="grid grid-3">
+              <div><label>Date</label><input id="labDate" type="date"></div>
+              <div><label>Time</label><input id="labTime" type="time"></div>
+              <div>
+                <label>Lab Type</label>
+                <select id="labType">
+                  <option value="">Select</option>
+                  <option>CBC</option>
+                  <option>Urinalysis</option>
+                  <option>CBG</option>
+                  <option>Fecalysis</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="grid grid-2" style="margin-top:12px;">
+              <div>
+                <label>Results / Values</label>
+                <textarea id="labResults"></textarea>
+              </div>
+              <div>
+                <label>Remarks / Interpretation</label>
+                <textarea id="labRemarks"></textarea>
+              </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="addLabBtn">Add Laboratory Entry</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>Laboratory Entries</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Lab Type</th>
+                    <th>Results</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="labTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </section>
+
+        <section id="ioPage" class="page">
+          <div class="card">
+            <h2>I &amp; O Sheet</h2>
+
+            <div class="grid grid-4">
+              <div><label>Date</label><input id="ioDate" type="date"></div>
+              <div><label>Time</label><input id="ioTime" type="time"></div>
+              <div>
+                <label>Shift</label>
+                <select id="ioShift">
+                  <option value="">Select</option>
+                  <option>6-2</option>
+                  <option>2-10</option>
+                  <option>10-6</option>
+                </select>
+              </div>
+              <div>
+                <label>Route</label>
+                <select id="ioRoute">
+                  <option value="">Select</option>
+                  <option>PO</option>
+                  <option>IVF</option>
+                  <option>PEG TUBE</option>
+                  <option>JT</option>
+                  <option>NGT</option>
+                  <option>TPN</option>
+                  <option>MEDS</option>
+                  <option>Others</option>
+                </select>
+              </div>
+
+              <div><label>Input Amount (mL)</label><input id="ioInput" type="number" value="0"></div>
+              <div><label>Urine (mL)</label><input id="ioUrine" type="number" value="0"></div>
+              <div><label>BM</label><input id="ioBm" type="number" value="0"></div>
+              <div><label>Drainage (mL)</label><input id="ioDrainage" type="number" value="0"></div>
+              <div><label>Vomit (mL)</label><input id="ioVomit" type="number" value="0"></div>
+              <div style="grid-column:span 3;">
+                <label>Remarks</label>
+                <input id="ioRemarks" type="text">
+              </div>
+            </div>
+
+            <div style="margin-top:16px;">
+              <button class="btn-primary" id="addIoBtn">Add I &amp; O Entry</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h3>I &amp; O Entries</h3>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Time</th>
+                    <th>Shift</th>
+                    <th>Route</th>
+                    <th>Input</th>
+                    <th>Urine</th>
+                    <th>BM</th>
+                    <th>Drainage</th>
+                    <th>Vomit</th>
+                    <th>Total Output</th>
+                    <th>Net I&amp;O</th>
+                    <th>Remarks</th>
+                  </tr>
+                </thead>
+                <tbody id="ioTableBody"></tbody>
+              </table>
+            </div>
+
+            <div id="ioTotalsBox" class="summary-box" style="margin-top:14px;">
+              Total Input: 0 mL | Total Output: 0 mL | Net I&amp;O: 0 mL
+            </div>
+          </div>
+        </section>
+
+        <section id="printablePage" class="page">
+          <div class="card">
+            <h2>Printable Patient Chart View</h2>
+            <p class="muted">Review the chart below, then click Print Patient Chart.</p>
+            <div id="printableChart" class="print-sheet"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    "use strict";
+
+    const STORAGE_KEY = "msh_his_multi_patient_v2";
+    const SESSION_KEY = "msh_his_session";
+    const PRIVACY_KEY = "msh_his_privacy_skip";
+
+    const DEMO_USERNAME = "admin";
+    const DEMO_PASSWORD = "MSH0823";
+
+    const brgyMap = {
+      "Imus": ["Alapan I-A","Alapan I-B","Anabu I-A","Anabu I-B","Anabu I-C","Anabu I-D","Bucandala I","Bucandala II","Carsadang Bago I","Malagasang I-A","Malagasang I-B","Medicion I-A","Medicion I-B","Poblacion I-A","Poblacion II-A"],
+      "Bacoor": ["Alima","Aniban I","Aniban II","Banalo","Bayanan","Habay I","Habay II","Kaingen","Mambog I","Mambog II","Molino I","Molino II","Niog I","Niog II","Talaba I","Zapote I"],
+      "Dasmariñas": ["Burol I","Burol II","Burol III","Datu Esmael","Emmanuel Bergado I","Langkaan I","Langkaan II","Paliparan I","Paliparan II","Sabang","Salawag","San Agustin I","San Dionisio","Zone I"],
+      "General Trias": ["Bagumbayan","Biclatan","Buenavista I","Corregidor","Dulong Bayan","Gov. Ferrer","Javalera","Manggahan","Pasong Camachile I","Pinagtipunan"],
+      "Kawit": ["Balsahan-Bisita","Batong Dalig","Binakayan-Aplaya","Binakayan-Kanluran","Gahak","Kaingen","Marulas","Pulvorista","Tabon I","Wakas I"],
+      "Noveleta": ["Magdiwang","Poblacion","Salcedo I","San Antonio I","San Juan I","San Rafael I"],
+      "Rosario": ["Bagbag I","Kanluran","Ligtong I","Sapa I","Silangan I","Tejeros Convention"],
+      "Tanza": ["Amaya I","Bagtas","Biwas","Capipisa","Daang Amaya I","Julugan I","Mulawin","Paradahan I","Poblacion I","Sahud Ulan"],
+      "Trece Martires": ["Aguado","Cabezas","De Ocampo","Gregorio","Inocencio","Lapidario","Osorio","Perez","San Agustin","Talambo"]
+    };
+
+    const emptyPatientRecord = () => ({
+      id: cryptoRandom(),
+      patient: {},
+      headToToe: {},
+      vitals: [],
+      iv: [],
+      medications: [],
+      doctorsOrders: [],
+      nursesNotes: [],
+      labs: [],
+      io: []
+    });
+
+    const defaultState = {
+      patients: [],
+      currentPatientId: null
+    };
+
+    function cryptoRandom(){
+      return "p_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
+    }
+
+    function escapeHtml(str){
+      if(str === null || str === undefined) return "";
+      return String(str)
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function loadState(){
+      try{
+        const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
+        return saved || structuredClone(defaultState);
+      }catch{
+        return structuredClone(defaultState);
+      }
+    }
+
+    function saveState(){
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      renderAll();
+    }
+
+    function getCurrentRecord(){
+      return state.patients.find(p => p.id === state.currentPatientId) || null;
+    }
+
+    function setCurrentRecord(id){
+      state.currentPatientId = id;
+      saveState();
+    }
+
+    function createNewPatientRecord(){
+      const rec = emptyPatientRecord();
+      state.patients.unshift(rec);
+      state.currentPatientId = rec.id;
+      saveState();
+      alert("New patient record created.");
+    }
+
+    function resetAll(){
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(PRIVACY_KEY);
+      sessionStorage.removeItem(SESSION_KEY);
+      location.reload();
+    }
+
+    const state = loadState();
+
+    const loginScreen = document.getElementById("loginScreen");
+    const appShell = document.getElementById("appShell");
+    const privacyModal = document.getElementById("privacyModal");
+
+    function showLogin(){
+      loginScreen.classList.remove("hidden");
+      appShell.classList.add("hidden");
+    }
+
+    function showApp(){
+      loginScreen.classList.add("hidden");
+      appShell.classList.remove("hidden");
+    }
+
+    function initAuth(){
+      const active = sessionStorage.getItem(SESSION_KEY) === "active";
+      if(active){
+        showApp();
+        if(localStorage.getItem(PRIVACY_KEY) !== "yes"){
+          privacyModal.classList.remove("hidden");
+        }
+      }else{
+        showLogin();
+      }
+    }
+
+    document.getElementById("loginBtn").addEventListener("click", () => {
+      const u = document.getElementById("loginUser").value.trim();
+      const p = document.getElementById("loginPass").value.trim();
+      if(u === DEMO_USERNAME && p === DEMO_PASSWORD){
+        sessionStorage.setItem(SESSION_KEY, "active");
+        showApp();
+        if(localStorage.getItem(PRIVACY_KEY) !== "yes"){
+          privacyModal.classList.remove("hidden");
+        }
+        renderAll();
+      }else{
+        alert("Invalid login credentials.");
+      }
+    });
+
+    document.getElementById("loginUser").addEventListener("keydown", e => {
+      if(e.key === "Enter") document.getElementById("loginBtn").click();
+    });
+    document.getElementById("loginPass").addEventListener("keydown", e => {
+      if(e.key === "Enter") document.getElementById("loginBtn").click();
+    });
+
+    document.getElementById("resetAllBtn").addEventListener("click", resetAll);
+    document.getElementById("logoutBtn").addEventListener("click", () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      location.reload();
+    });
+
+    document.getElementById("agreePrivacyBtn").addEventListener("click", () => {
+      if(document.getElementById("dontShowPrivacyAgain").checked){
+        localStorage.setItem(PRIVACY_KEY, "yes");
+      }
+      privacyModal.classList.add("hidden");
+    });
+
+    document.getElementById("declinePrivacyBtn").addEventListener("click", () => {
+      sessionStorage.removeItem(SESSION_KEY);
+      alert("You must agree to continue.");
+      location.reload();
+    });
+
+    document.getElementById("newPatientBtn").addEventListener("click", () => {
+      createNewPatientRecord();
+    });
+
+    document.getElementById("exportBtn").addEventListener("click", () => {
+      const blob = new Blob([JSON.stringify(state, null, 2)], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "msh_his_export.json";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById("printChartBtn").addEventListener("click", () => {
+      showPage("printablePage");
+      window.print();
+    });
+
+    function calculateAgeYMD(birthdayStr){
+      if(!birthdayStr) return "";
+      const birth = new Date(birthdayStr);
+      const now = new Date();
+      if(Number.isNaN(birth.getTime())) return "";
+      let years = now.getFullYear() - birth.getFullYear();
+      let months = now.getMonth() - birth.getMonth();
+      let days = now.getDate() - birth.getDate();
+
+      if(days < 0){
+        months--;
+        const prevMonthDays = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+        days += prevMonthDays;
+      }
+      if(months < 0){
+        years--;
+        months += 12;
+      }
+      return `${years}Y ${months}M ${days}D`;
+    }
+
+    function getAgeInYears(birthdayStr){
+      if(!birthdayStr) return null;
+      const birth = new Date(birthdayStr);
+      const now = new Date();
+      let age = now.getFullYear() - birth.getFullYear();
+      const m = now.getMonth() - birth.getMonth();
+      if(m < 0 || (m === 0 && now.getDate() < birth.getDate())) age--;
+      return age;
+    }
+
+    function getAgeGroup(age){
+      if(age === null || age < 0) return "adult";
+      if(age < 1) return "infant";
+      if(age <= 3) return "toddler";
+      if(age <= 12) return "child";
+      if(age <= 17) return "adolescent";
+      return "adult";
+    }
+
+    function getVitalRanges(ageGroup){
+      const ranges = {
+        infant:{ temp:[36.5,37.5], pulse:[100,160], resp:[30,60], o2:[95,100], systolic:[70,100], diastolic:[50,65] },
+        toddler:{ temp:[36.5,37.5], pulse:[90,140], resp:[24,40], o2:[95,100], systolic:[80,110], diastolic:[50,80] },
+        child:{ temp:[36.0,37.5], pulse:[70,120], resp:[18,30], o2:[95,100], systolic:[90,120], diastolic:[55,80] },
+        adolescent:{ temp:[36.0,37.5], pulse:[60,100], resp:[12,20], o2:[95,100], systolic:[90,120], diastolic:[60,80] },
+        adult:{ temp:[36.0,37.5], pulse:[60,100], resp:[12,20], o2:[95,100], systolic:[90,120], diastolic:[60,80] }
+      };
+      return ranges[ageGroup] || ranges.adult;
+    }
+
+    function parseBP(bp){
+      const m = String(bp).match(/^(\d{2,3})\s*\/\s*(\d{2,3})$/);
+      if(!m) return null;
+      return {sys:Number(m[1]), dia:Number(m[2])};
+    }
+
+    function assessVitals(entry, rec){
+      const age = getAgeInYears(rec?.patient?.birthday);
+      const group = getAgeGroup(age);
+      const r = getVitalRanges(group);
+
+      const temp = Number(entry.temp);
+      const pulse = Number(entry.pulse);
+      const resp = Number(entry.resp);
+      const o2 = Number(entry.o2);
+      const bp = parseBP(entry.bp);
+
+      const flags = {
+        temp: !Number.isNaN(temp) && (temp < r.temp[0] || temp > r.temp[1]),
+        pulse: !Number.isNaN(pulse) && (pulse < r.pulse[0] || pulse > r.pulse[1]),
+        resp: !Number.isNaN(resp) && (resp < r.resp[0] || resp > r.resp[1]),
+        o2: !Number.isNaN(o2) && (o2 < r.o2[0] || o2 > r.o2[1]),
+        bp: bp ? (bp.sys < r.systolic[0] || bp.sys > r.systolic[1] || bp.dia < r.diastolic[0] || bp.dia > r.diastolic[1]) : false
+      };
+
+      const abnormal = Object.values(flags).some(Boolean);
+      return {
+        flags,
+        summary: abnormal ? "Abnormal / Needs review" : "Within expected range"
+      };
+    }
+
+    function populateBarangays(muni, selected=""){
+      const brgy = document.getElementById("barangay");
+      brgy.innerHTML = "";
+      let list = [];
+      if(muni === "Other") list = ["Other"];
+      else if(brgyMap[muni]) list = brgyMap[muni];
+
+      if(list.length === 0){
+        brgy.innerHTML = `<option value="">Select municipality first</option>`;
+        return;
+      }
+      brgy.innerHTML = `<option value="">Select</option>` + list.map(x => `<option value="${escapeHtml(x)}">${escapeHtml(x)}</option>`).join("");
+      if(selected) brgy.value = selected;
+    }
+
+    function val(id){
+      return document.getElementById(id).value.trim();
+    }
+
+    function setVal(id, value){
+      const el = document.getElementById(id);
+      if(el) el.value = value || "";
+    }
+
+    function setChecked(id, checked){
+      const el = document.getElementById(id);
+      if(el) el.checked = !!checked;
+    }
+
+    function showPage(pageId){
+      document.querySelectorAll(".page").forEach(p => p.classList.remove("active"));
+      document.querySelectorAll("#menu button").forEach(b => b.classList.remove("active"));
+      document.getElementById(pageId).classList.add("active");
+      const menuBtn = [...document.querySelectorAll("#menu button")].find(b => b.dataset.page === pageId);
+      if(menuBtn) menuBtn.classList.add("active");
+      if(pageId === "printablePage") renderPrintableChart();
+    }
+
+    document.querySelectorAll("#menu button").forEach(btn => {
+      btn.addEventListener("click", () => showPage(btn.dataset.page));
+    });
+
+    document.getElementById("municipality").addEventListener("change", (e) => {
+      populateBarangays(e.target.value);
+    });
+
+    document.getElementById("birthday").addEventListener("change", (e) => {
+      document.getElementById("ageDisplay").value = calculateAgeYMD(e.target.value);
+    });
+
+    function renderDashboard(){
+      const rec = getCurrentRecord();
+      document.getElementById("metricPatients").textContent = state.patients.length;
+      document.getElementById("metricVitals").textContent = rec ? rec.vitals.length : 0;
+      document.getElementById("metricMeds").textContent = rec ? rec.medications.length : 0;
+      document.getElementById("metricNotes").textContent = rec ? rec.nursesNotes.length : 0;
+
+      const summary = document.getElementById("patientSummary");
+      const flagsWrap = document.getElementById("dashboardFlags");
+
+      if(!rec || !rec.patient.patientName){
+        summary.innerHTML = "No patient selected yet.";
+        flagsWrap.innerHTML = `<span class="flag">No tags yet</span>`;
+        return;
+      }
+
+      const p = rec.patient;
+      const addr = [p.streetAddress, p.barangay, p.municipality].filter(Boolean).join(", ");
+      summary.innerHTML = `
+        <b>${escapeHtml(p.patientName)}</b><br>
+        Age: ${escapeHtml(p.ageDisplay || "")} | Sex: ${escapeHtml(p.sex || "")} | Religion: ${escapeHtml(p.religion || "")}<br>
+        Hospital No.: ${escapeHtml(p.hospitalNumber || "")}<br>
+        Address: ${escapeHtml(addr)}<br>
+        CC: ${escapeHtml(p.cc || "")}<br>
+        Admitting Diagnosis: ${escapeHtml(p.admittingDiagnosis || "")}<br>
+        Other Diagnoses: ${escapeHtml(p.otherDiagnoses || "")}<br>
+        Allergies: ${escapeHtml(p.allergies || "")}<br>
+        Reaction to Allergies: ${escapeHtml(p.allergyReaction || "")}<br>
+        Diet: ${escapeHtml(p.diet || "")}<br>
+        Emergency Contact: ${escapeHtml(p.emergencyContact || "")}<br>
+        Admission: ${escapeHtml(p.admissionDateTime || "")}
+      `;
+
+      const tags = [];
+      if(p.tags?.fallRisk) tags.push({t:"Risk for Fall", c:"warn"});
+      if(p.tags?.psychiatric) tags.push({t:"Psychiatric Patient", c:"red"});
+      if(p.tags?.closeMonitoring) tags.push({t:"Close Monitoring", c:"red"});
+      if(p.tags?.isolation) tags.push({t:"Isolation Precaution", c:"warn"});
+      if(p.tags?.seizure) tags.push({t:"Seizure Precaution", c:"warn"});
+      if(p.tags?.aspiration) tags.push({t:"Aspiration Precaution", c:"warn"});
+      if(p.tags?.bleeding) tags.push({t:"Bleeding Precaution", c:"warn"});
+      if(p.tags?.otherToggle && p.tags?.otherText) tags.push({t:p.tags.otherText, c:"green"});
+
+      flagsWrap.innerHTML = tags.length
+        ? tags.map(x => `<span class="flag ${x.c}">${escapeHtml(x.t)}</span>`).join("")
+        : `<span class="flag">No tags yet</span>`;
+    }
+
+    function renderDemographicInputs(){
+      const rec = getCurrentRecord();
+      const p = rec?.patient || {};
+      setVal("patientName", p.patientName);
+      setVal("birthday", p.birthday);
+      setVal("ageDisplay", p.ageDisplay);
+      setVal("sex", p.sex);
+      setVal("religion", p.religion);
+      setVal("hospitalNumber", p.hospitalNumber);
+      setVal("municipality", p.municipality);
+      populateBarangays(p.municipality, p.barangay);
+      setVal("streetAddress", p.streetAddress);
+      setVal("cc", p.cc);
+      setVal("admittingDiagnosis", p.admittingDiagnosis);
+      setVal("otherDiagnoses", p.otherDiagnoses);
+      setVal("allergies", p.allergies);
+      setVal("allergyReaction", p.allergyReaction);
+      setVal("diet", p.diet);
+      setVal("emergencyContact", p.emergencyContact);
+      setVal("admissionDateTime", p.admissionDateTime);
+
+      setChecked("tagFallRisk", p.tags?.fallRisk);
+      setChecked("tagPsych", p.tags?.psychiatric);
+      setChecked("tagCloseMonitoring", p.tags?.closeMonitoring);
+      setChecked("tagIsolation", p.tags?.isolation);
+      setChecked("tagSeizure", p.tags?.seizure);
+      setChecked("tagAspiration", p.tags?.aspiration);
+      setChecked("tagBleeding", p.tags?.bleeding);
+      setChecked("tagOtherPrecautionToggle", p.tags?.otherToggle);
+      setVal("tagOtherPrecautionText", p.tags?.otherText);
+    }
+
+    function renderHeadToToeInputs(){
+      const rec = getCurrentRecord();
+      const h = rec?.headToToe || {};
+      setVal("httGeneral", h.general);
+      setVal("httNeuro", h.neuro);
+      setVal("httHeent", h.heent);
+      setVal("httResp", h.resp);
+      setVal("httCardio", h.cardio);
+      setVal("httGi", h.gi);
+      setVal("httGu", h.gu);
+      setVal("httMs", h.ms);
+      setVal("httSkin", h.skin);
+      setVal("httLines", h.lines);
+    }
+
+    function renderVitals(){
+      const rec = getCurrentRecord();
+      const tbody = document.getElementById("vitalsTableBody");
+      tbody.innerHTML = "";
+      if(!rec) return;
+      rec.vitals.forEach(v => {
+        const a = assessVitals(v, rec);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(v.date)}</td>
+          <td>${escapeHtml(v.time)}</td>
+          <td>${escapeHtml(v.shift)}</td>
+          <td class="${a.flags.temp ? 'danger' : ''}">${escapeHtml(v.temp)}</td>
+          <td class="${a.flags.pulse ? 'danger' : ''}">${escapeHtml(v.pulse)}</td>
+          <td class="${a.flags.resp ? 'danger' : ''}">${escapeHtml(v.resp)}</td>
+          <td class="${a.flags.bp ? 'danger' : ''}">${escapeHtml(v.bp)}</td>
+          <td class="${a.flags.o2 ? 'danger' : ''}">${escapeHtml(v.o2)}</td>
+          <td>${a.summary.includes("Abnormal") ? '<span class="pill-danger">Abnormal / Needs review</span>' : '<span class="pill-normal">Within expected range</span>'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderIv(){
+      const rec = getCurrentRecord();
+      const tbody = document.getElementById("ivTableBody");
+      tbody.innerHTML = "";
+      if(!rec) return;
+      rec.iv.forEach(x => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(x.date)}</td>
+          <td>${escapeHtml(x.time)}</td>
+          <td>${escapeHtml(x.fluid)}</td>
+          <td>${escapeHtml(x.volume)}</td>
+          <td>${escapeHtml(x.rate)}</td>
+          <td>${escapeHtml(x.site)}</td>
+          <td>${escapeHtml(x.remarks)}</td>
+          <td>${escapeHtml(x.nurse)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderMeds(){
+      const rec = getCurrentRecord();
+      const tbody = document.getElementById("medTableBody");
+      tbody.innerHTML = "";
+      if(!rec) return;
+      rec.medications.forEach(x => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(x.date)}</td>
+          <td>${escapeHtml(x.name)}</td>
+          <td>${escapeHtml(x.route)}</td>
+          <td>${escapeHtml(x.dose)}</td>
+          <td>${escapeHtml(x.frequency)}</td>
+          <td>${escapeHtml(x.time)}</td>
+          <td>${escapeHtml(x.type)}</td>
+          <td>${x.given === "Yes" ? '<span class="success">Given</span>' : '<span class="danger">Not Given</span>'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderDocOrders(){
+      const rec = getCurrentRecord();
+      const tbody = document.getElementById("docOrderTableBody");
+      tbody.innerHTML = "";
+      if(!rec) return;
+      rec.doctorsOrders.forEach(x => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(x.date)}</td>
+          <td>${escapeHtml(x.time)}</td>
+          <td>${escapeHtml(x.physician)}</td>
+          <td>${escapeHtml(x.order)}</td>
+          <td>${escapeHtml(x.nurse)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderNursesNotes(){
+      const rec = getCurrentRecord();
+      const wrap = document.getElementById("nursesNotesList");
+      wrap.innerHTML = "";
+      if(!rec || rec.nursesNotes.length === 0){
+        wrap.innerHTML = `<p class="muted">No nurses notes yet.</p>`;
+        return;
+      }
+      rec.nursesNotes.forEach(note => {
+        const div = document.createElement("div");
+        div.className = "card";
+        div.innerHTML = `
+          <div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+            <div><b>${escapeHtml(note.date)} ${escapeHtml(note.time)}</b></div>
+            <div><span class="badge">${escapeHtml(note.shift)}</span> | ${escapeHtml(note.author)}</div>
+          </div>
+          <hr>
+          <p><b>S:</b> ${escapeHtml(note.s)}</p>
+          <p><b>O:</b> ${escapeHtml(note.o)}</p>
+          <p><b>A:</b> ${escapeHtml(note.a)}</p>
+          <p><b>P:</b> ${escapeHtml(note.p)}</p>
+          <p><b>I:</b> ${escapeHtml(note.i)}</p>
+          <p><b>E:</b> ${escapeHtml(note.e)}</p>
+        `;
+        wrap.appendChild(div);
+      });
+    }
+
+    function renderLabs(){
+      const rec = getCurrentRecord();
+      const tbody = document.getElementById("labTableBody");
+      tbody.innerHTML = "";
+      if(!rec) return;
+      rec.labs.forEach(x => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(x.date)}</td>
+          <td>${escapeHtml(x.time)}</td>
+          <td>${escapeHtml(x.type)}</td>
+          <td>${escapeHtml(x.results)}</td>
+          <td>${escapeHtml(x.remarks)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderIO(){
+      const rec = getCurrentRecord();
+      const tbody = document.getElementById("ioTableBody");
+      tbody.innerHTML = "";
+      let totalInput = 0;
+      let totalOutput = 0;
+      if(!rec){
+        document.getElementById("ioTotalsBox").innerHTML = `Total Input: 0 mL | Total Output: 0 mL | Net I&amp;O: 0 mL`;
+        return;
+      }
+
+      rec.io.forEach(x => {
+        const input = Number(x.input) || 0;
+        const urine = Number(x.urine) || 0;
+        const bm = Number(x.bm) || 0;
+        const drainage = Number(x.drainage) || 0;
+        const vomit = Number(x.vomit) || 0;
+        const output = urine + bm + drainage + vomit;
+        const net = input - output;
+        totalInput += input;
+        totalOutput += output;
+
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(x.date)}</td>
+          <td>${escapeHtml(x.time)}</td>
+          <td>${escapeHtml(x.shift)}</td>
+          <td>${escapeHtml(x.route)}</td>
+          <td>${input}</td>
+          <td>${urine}</td>
+          <td>${bm}</td>
+          <td>${drainage}</td>
+          <td>${vomit}</td>
+          <td>${output}</td>
+          <td class="${net < 0 ? 'danger' : ''}">${net}</td>
+          <td>${escapeHtml(x.remarks)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      const netTotal = totalInput - totalOutput;
+      document.getElementById("ioTotalsBox").innerHTML =
+        `Total Input: <b>${totalInput} mL</b> | Total Output: <b>${totalOutput} mL</b> | Net I&amp;O: <b class="${netTotal < 0 ? 'danger' : ''}">${netTotal} mL</b>`;
+    }
+
+    function renderSearchPatients(filterText=""){
+      const tbody = document.getElementById("patientSearchResults");
+      tbody.innerHTML = "";
+
+      const q = filterText.toLowerCase().trim();
+      const list = state.patients.filter(rec => {
+        const name = (rec.patient?.patientName || "").toLowerCase();
+        const hosp = (rec.patient?.hospitalNumber || "").toLowerCase();
+        return !q || name.includes(q) || hosp.includes(q);
+      });
+
+      if(list.length === 0){
+        tbody.innerHTML = `<tr><td colspan="6" class="muted">No matching patients found.</td></tr>`;
+        return;
+      }
+
+      list.forEach(rec => {
+        const p = rec.patient || {};
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${escapeHtml(p.patientName || "(Unnamed patient)")}</td>
+          <td>${escapeHtml(p.hospitalNumber || "")}</td>
+          <td>${escapeHtml(p.ageDisplay || "")}</td>
+          <td>${escapeHtml(p.sex || "")}</td>
+          <td>${escapeHtml(p.admittingDiagnosis || "")}</td>
+          <td><button class="btn-blue" data-select-id="${rec.id}">Select</button></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll("button[data-select-id]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          setCurrentRecord(btn.dataset.selectId);
+          alert("Patient selected.");
+          showPage("dashboardPage");
+        });
+      });
+    }
+
+    function renderPrintableChart(){
+      const rec = getCurrentRecord();
+      const wrap = document.getElementById("printableChart");
+
+      if(!rec || !rec.patient.patientName){
+        wrap.innerHTML = `<h2>Printable Patient Chart</h2><p>No patient selected.</p>`;
+        return;
+      }
+
+      const p = rec.patient;
+      const addr = [p.streetAddress, p.barangay, p.municipality].filter(Boolean).join(", ");
+      const tags = [];
+      if(p.tags?.fallRisk) tags.push("Risk for Fall");
+      if(p.tags?.psychiatric) tags.push("Psychiatric Patient");
+      if(p.tags?.closeMonitoring) tags.push("Close Monitoring");
+      if(p.tags?.isolation) tags.push("Isolation Precaution");
+      if(p.tags?.seizure) tags.push("Seizure Precaution");
+      if(p.tags?.aspiration) tags.push("Aspiration Precaution");
+      if(p.tags?.bleeding) tags.push("Bleeding Precaution");
+      if(p.tags?.otherToggle && p.tags?.otherText) tags.push(p.tags.otherText);
+
+      wrap.innerHTML = `
+        <h1>Prototype Hospital Information System by MSH</h1>
+        <h2>Printable Patient Chart</h2>
+
+        <table class="print-table">
+          <tr><th>Patient Name</th><td>${escapeHtml(p.patientName || "")}</td><th>Hospital Number</th><td>${escapeHtml(p.hospitalNumber || "")}</td></tr>
+          <tr><th>Birthday</th><td>${escapeHtml(p.birthday || "")}</td><th>Age</th><td>${escapeHtml(p.ageDisplay || "")}</td></tr>
+          <tr><th>Sex</th><td>${escapeHtml(p.sex || "")}</td><th>Religion</th><td>${escapeHtml(p.religion || "")}</td></tr>
+          <tr><th>Address</th><td colspan="3">${escapeHtml(addr)}</td></tr>
+          <tr><th>CC</th><td colspan="3">${escapeHtml(p.cc || "")}</td></tr>
+          <tr><th>Admitting Diagnosis</th><td colspan="3">${escapeHtml(p.admittingDiagnosis || "")}</td></tr>
+          <tr><th>Other Diagnoses</th><td colspan="3">${escapeHtml(p.otherDiagnoses || "")}</td></tr>
+          <tr><th>Allergies</th><td>${escapeHtml(p.allergies || "")}</td><th>Reaction to Allergies</th><td>${escapeHtml(p.allergyReaction || "")}</td></tr>
+          <tr><th>Diet</th><td>${escapeHtml(p.diet || "")}</td><th>Emergency Contact</th><td>${escapeHtml(p.emergencyContact || "")}</td></tr>
+          <tr><th>Date & Time of Admission</th><td colspan="3">${escapeHtml(p.admissionDateTime || "")}</td></tr>
+          <tr><th>Patient Tags</th><td colspan="3">${escapeHtml(tags.join(", ") || "None")}</td></tr>
+        </table>
+
+        <h3 style="margin-top:16px;">Head-to-Toe Assessment</h3>
+        <table class="print-table">
+          <tr><th>General Appearance</th><td>${escapeHtml(rec.headToToe.general || "")}</td></tr>
+          <tr><th>Neurologic / Mental Status</th><td>${escapeHtml(rec.headToToe.neuro || "")}</td></tr>
+          <tr><th>HEENT</th><td>${escapeHtml(rec.headToToe.heent || "")}</td></tr>
+          <tr><th>Respiratory</th><td>${escapeHtml(rec.headToToe.resp || "")}</td></tr>
+          <tr><th>Cardiovascular</th><td>${escapeHtml(rec.headToToe.cardio || "")}</td></tr>
+          <tr><th>Gastrointestinal</th><td>${escapeHtml(rec.headToToe.gi || "")}</td></tr>
+          <tr><th>Genitourinary</th><td>${escapeHtml(rec.headToToe.gu || "")}</td></tr>
+          <tr><th>Musculoskeletal</th><td>${escapeHtml(rec.headToToe.ms || "")}</td></tr>
+          <tr><th>Skin / Integumentary</th><td>${escapeHtml(rec.headToToe.skin || "")}</td></tr>
+          <tr><th>Lines / Tubes / Drains / Devices</th><td>${escapeHtml(rec.headToToe.lines || "")}</td></tr>
+        </table>
+
+        <h3 style="margin-top:16px;">Latest Vital Signs</h3>
+        <table class="print-table">
+          <thead>
+            <tr><th>Date</th><th>Time</th><th>Shift</th><th>Temp</th><th>Pulse</th><th>Resp</th><th>BP</th><th>O2</th></tr>
+          </thead>
+          <tbody>
+            ${rec.vitals.slice(0,10).map(v => `
+              <tr>
+                <td>${escapeHtml(v.date)}</td>
+                <td>${escapeHtml(v.time)}</td>
+                <td>${escapeHtml(v.shift)}</td>
+                <td>${escapeHtml(v.temp)}</td>
+                <td>${escapeHtml(v.pulse)}</td>
+                <td>${escapeHtml(v.resp)}</td>
+                <td>${escapeHtml(v.bp)}</td>
+                <td>${escapeHtml(v.o2)}</td>
+              </tr>
+            `).join("") || `<tr><td colspan="8">No entries</td></tr>`}
+          </tbody>
+        </table>
+
+        <h3 style="margin-top:16px;">Medication Sheet</h3>
+        <table class="print-table">
+          <thead>
+            <tr><th>Date</th><th>Medication</th><th>Route</th><th>Dose</th><th>Frequency</th><th>Time</th><th>Type</th><th>Given</th></tr>
+          </thead>
+          <tbody>
+            ${rec.medications.slice(0,15).map(m => `
+              <tr>
+                <td>${escapeHtml(m.date)}</td>
+                <td>${escapeHtml(m.name)}</td>
+                <td>${escapeHtml(m.route)}</td>
+                <td>${escapeHtml(m.dose)}</td>
+                <td>${escapeHtml(m.frequency)}</td>
+                <td>${escapeHtml(m.time)}</td>
+                <td>${escapeHtml(m.type)}</td>
+                <td>${escapeHtml(m.given)}</td>
+              </tr>
+            `).join("") || `<tr><td colspan="8">No entries</td></tr>`}
+          </tbody>
+        </table>
+
+        <h3 style="margin-top:16px;">Doctor’s Orders</h3>
+        <table class="print-table">
+          <thead>
+            <tr><th>Date</th><th>Time</th><th>Physician</th><th>Order</th><th>Carried Out By</th></tr>
+          </thead>
+          <tbody>
+            ${rec.doctorsOrders.slice(0,10).map(d => `
+              <tr>
+                <td>${escapeHtml(d.date)}</td>
+                <td>${escapeHtml(d.time)}</td>
+                <td>${escapeHtml(d.physician)}</td>
+                <td>${escapeHtml(d.order)}</td>
+                <td>${escapeHtml(d.nurse)}</td>
+              </tr>
+            `).join("") || `<tr><td colspan="5">No entries</td></tr>`}
+          </tbody>
+        </table>
+
+        <h3 style="margin-top:16px;">Nurses’ Notes</h3>
+        <table class="print-table">
+          <thead>
+            <tr><th>Date/Time</th><th>Shift</th><th>SOAPIE</th><th>Author</th></tr>
+          </thead>
+          <tbody>
+            ${rec.nursesNotes.slice(0,10).map(n => `
+              <tr>
+                <td>${escapeHtml(n.date)} ${escapeHtml(n.time)}</td>
+                <td>${escapeHtml(n.shift)}</td>
+                <td>
+                  <b>S:</b> ${escapeHtml(n.s)}<br>
+                  <b>O:</b> ${escapeHtml(n.o)}<br>
+                  <b>A:</b> ${escapeHtml(n.a)}<br>
+                  <b>P:</b> ${escapeHtml(n.p)}<br>
+                  <b>I:</b> ${escapeHtml(n.i)}<br>
+                  <b>E:</b> ${escapeHtml(n.e)}
+                </td>
+                <td>${escapeHtml(n.author)}</td>
+              </tr>
+            `).join("") || `<tr><td colspan="4">No entries</td></tr>`}
+          </tbody>
+        </table>
+
+        <h3 style="margin-top:16px;">Laboratory Sheet</h3>
+        <table class="print-table">
+          <thead>
+            <tr><th>Date</th><th>Time</th><th>Type</th><th>Results</th><th>Remarks</th></tr>
+          </thead>
+          <tbody>
+            ${rec.labs.slice(0,10).map(l => `
+              <tr>
+                <td>${escapeHtml(l.date)}</td>
+                <td>${escapeHtml(l.time)}</td>
+                <td>${escapeHtml(l.type)}</td>
+                <td>${escapeHtml(l.results)}</td>
+                <td>${escapeHtml(l.remarks)}</td>
+              </tr>
+            `).join("") || `<tr><td colspan="5">No entries</td></tr>`}
+          </tbody>
+        </table>
+
+        <h3 style="margin-top:16px;">I &amp; O Summary</h3>
+        <table class="print-table">
+          <thead>
+            <tr><th>Date</th><th>Time</th><th>Shift</th><th>Route</th><th>Input</th><th>Total Output</th><th>Net I&amp;O</th></tr>
+          </thead>
+          <tbody>
+            ${rec.io.slice(0,15).map(i => {
+              const input = Number(i.input)||0;
+              const output = (Number(i.urine)||0)+(Number(i.bm)||0)+(Number(i.drainage)||0)+(Number(i.vomit)||0);
+              const net = input-output;
+              return `
+                <tr>
+                  <td>${escapeHtml(i.date)}</td>
+                  <td>${escapeHtml(i.time)}</td>
+                  <td>${escapeHtml(i.shift)}</td>
+                  <td>${escapeHtml(i.route)}</td>
+                  <td>${input}</td>
+                  <td>${output}</td>
+                  <td>${net}</td>
+                </tr>
+              `;
+            }).join("") || `<tr><td colspan="7">No entries</td></tr>`}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function renderAll(){
+      renderDashboard();
+      renderDemographicInputs();
+      renderHeadToToeInputs();
+      renderVitals();
+      renderIv();
+      renderMeds();
+      renderDocOrders();
+      renderNursesNotes();
+      renderLabs();
+      renderIO();
+      renderSearchPatients(document.getElementById("patientSearchInput")?.value || "");
+      renderPrintableChart();
+    }
+
+    document.getElementById("saveDemographicBtn").addEventListener("click", () => {
+      let rec = getCurrentRecord();
+      if(!rec){
+        createNewPatientRecord();
+        rec = getCurrentRecord();
+      }
+
+      const patientName = val("patientName");
+      const birthday = val("birthday");
+
+      if(!patientName || !birthday){
+        alert("Patient Name and Birthday are required.");
+        return;
+      }
+
+      rec.patient = {
+        patientName,
+        birthday,
+        ageDisplay: calculateAgeYMD(birthday),
+        sex: val("sex"),
+        religion: val("religion"),
+        hospitalNumber: val("hospitalNumber"),
+        municipality: val("municipality"),
+        barangay: val("barangay"),
+        streetAddress: val("streetAddress"),
+        cc: val("cc"),
+        admittingDiagnosis: val("admittingDiagnosis"),
+        otherDiagnoses: val("otherDiagnoses"),
+        allergies: val("allergies"),
+        allergyReaction: val("allergyReaction"),
+        diet: val("diet"),
+        emergencyContact: val("emergencyContact"),
+        admissionDateTime: val("admissionDateTime"),
+        tags: {
+          fallRisk: document.getElementById("tagFallRisk").checked,
+          psychiatric: document.getElementById("tagPsych").checked,
+          closeMonitoring: document.getElementById("tagCloseMonitoring").checked,
+          isolation: document.getElementById("tagIsolation").checked,
+          seizure: document.getElementById("tagSeizure").checked,
+          aspiration: document.getElementById("tagAspiration").checked,
+          bleeding: document.getElementById("tagBleeding").checked,
+          otherToggle: document.getElementById("tagOtherPrecautionToggle").checked,
+          otherText: val("tagOtherPrecautionText")
+        }
+      };
+
+      saveState();
+      alert("Demographic profile saved.");
+    });
+
+    document.getElementById("saveHeadToToeBtn").addEventListener("click", () => {
+      const rec = getCurrentRecord();
+      if(!rec){
+        alert("Please create or select a patient record first.");
+        return;
+      }
+      rec.headToToe = {
+        general: val("httGeneral"),
+        neuro: val("httNeuro"),
+        heent: val("httHeent"),
+        resp: val("httResp"),
+        cardio: val("httCardio"),
+        gi: val("httGi"),
+        gu: val("httGu"),
+        ms: val("httMs"),
+        skin: val("httSkin"),
+        lines: val("httLines")
+      };
+      saveState();
+      alert("Head-to-toe assessment saved.");
+    });
+
+    document.getElementById("addVitalsBtn").addEventListener("click", () => {
+      const rec = getCurrentRecord();
+      if(!rec || !rec.patient.patientName){
+        alert("Please create or select a patient and save the demographic profile first.");
+        return;
+      }
+      if(!rec.headToToe.general && !rec.headToToe.neuro && !rec.headToToe.heent){
+        alert("Please complete the Head-to-Toe Assessment first.");
+        return;
+      }
+
+      const entry = {
+        date: val("vsDate"),
+        time: val("vsTime"),
+        shift: val("vsShift"),
+        temp: val("vsTemp"),
+        pulse: val("vsPulse"),
+        resp: val("vsResp"),
+        bp: val("vsBP"),
+        o2: val("vsO2")
+      };
+
+      if(!entry.date || !entry.time || !entry.shift){
+        alert("Date, time, and shift are required.");
+        return;
+      }
+
+      rec.vitals.unshift(entry);
+      saveState();
+      ["vsDate","vsTime","vsShift","vsTemp","vsPulse","vsResp","vsBP","vsO2"].forEach(id => setVal(id,""));
+    });
+
+    document.getElementById("addIvBtn").addEventListener("click", () => {
+      const rec = getCurrentRecord();
+      if(!rec){
+        alert("Please create or select a patient record first.");
+        return;
+      }
+      const entry = {
+        date: val("ivDate"),
+        time: val("ivTime"),
+        fluid: val("ivFluid"),
+        volume: val("ivVolume"),
+        rate: val("ivRate"),
+        site: val("ivSite"),
+        remarks: val("ivRemarks"),
+        nurse: val("ivNurse")
+      };
+      if(!entry.date || !entry.fluid){
+        alert("IV date and fluid are required.");
+        return;
+      }
+      rec.iv.unshift(entry);
+      saveState();
+      ["ivDate","ivTime","ivFluid","ivVolume","ivRate","ivSite","ivRemarks","ivNurse"].forEach(id => setVal(id,""));
+    });
+
+    document.getElementById("addMedBtn").addEventListener("click", () => {
+      const rec = getCurrentRecord();
+      if(!rec){
+        alert("Please create or select a patient record first.");
+        return;
+      }
+      const entry = {
+        date: val("medDate"),
+        name: val("medName"),
+        route: val("medRoute"),
+        dose: val("medDose"),
+        frequency: val("medFrequency"),
+        time: val("medTime"),
+        type: val("medType"),
+        given: val("medGiven")
+      };
+      if(!entry.date || !entry.name){
+        alert("Medication date and name are required.");
+        return;
+      }
+      rec.medications.unshift(entry);
+      saveState();
+      ["medDate","medName","medRoute","medDose","medFrequency","medTime","medType","medGiven"].forEach(id => setVal(id,""));
+    });
+
+    document.getElementById("addDocOrderBtn").addEventListener("click", () => {
+      const rec = getCurrentRecord();
+      if(!rec){
+        alert("Please create or select a patient record first.");
+        return;
+      }
+      const entry = {
+        date: val("docOrderDate"),
+        time: val("docOrderTime"),
+        physician: val("docOrderPhysician"),
+        order: val("docOrderText"),
+        nurse: val("docOrderNurse")
+      };
+      if(!entry.date || !entry.order){
+        alert("Doctor's order date and order text are required.");
+        return;
+      }
+      rec.doctorsOrders.unshift(entry);
+      saveState();
+      ["docOrderDate","docOrderTime","docOrderPhysician","docOrderText","docOrderNurse"].forEach(id => setVal(id,""));
+    });
+
+    document.getElementById("addNnBtn").addEventListener("click", () => {
+      const rec = getCurrentRecord();
+      if(!rec){
+        alert("Please create or select a patient record first.");
+        return;
+      }
+      const entry = {
+        date: val("nnDate"),
+        time: val("nnTime"),
+        shift: val("nnShift"),
+        s: val("nnS"),
+        o: val("nnO"),
+        a: val("nnA"),
+        p: val("nnP"),
+        i: val("nnI"),
+        e: val("nnE"),
+        author: val("nnAuthor")
+      };
+      if(!entry.date || !entry.time){
+        alert("Nurses note date and time are required.");
+        return;
+      }
+      rec.nursesNotes.unshift(entry);
+      saveState();
+      ["nnDate","nnTime","nnShift","nnS","nnO","nnA","nnP","nnI","nnE","nnAuthor"].forEach(id => setVal(id,""));
+    });
+
+    document.getElementById("addLabBtn").addEventListener("click", () => {
+      const rec = getCurrentRecord();
+      if(!rec){
+        alert("Please create or select a patient record first.");
+        return;
+      }
+      const entry = {
+        date: val("labDate"),
+        time: val("labTime"),
+        type: val("labType"),
+        results: val("labResults"),
+        remarks: val("labRemarks")
+      };
+      if(!entry.date || !entry.type){
+        alert("Lab date and type are required.");
+        return;
+      }
+      rec.labs.unshift(entry);
+      saveState();
+      ["labDate","labTime","labType","labResults","labRemarks"].forEach(id => setVal(id,""));
+    });
+
+    document.getElementById("addIoBtn").addEventListener("click", () => {
+      const rec = getCurrentRecord();
+      if(!rec){
+        alert("Please create or select a patient record first.");
+        return;
+      }
+      const entry = {
+        date: val("ioDate"),
+        time: val("ioTime"),
+        shift: val("ioShift"),
+        route: val("ioRoute"),
+        input: val("ioInput") || "0",
+        urine: val("ioUrine") || "0",
+        bm: val("ioBm") || "0",
+        drainage: val("ioDrainage") || "0",
+        vomit: val("ioVomit") || "0",
+        remarks: val("ioRemarks")
+      };
+      if(!entry.date || !entry.route){
+        alert("I&O date and route are required.");
+        return;
+      }
+      rec.io.unshift(entry);
+      saveState();
+      ["ioDate","ioTime","ioShift","ioRoute","ioRemarks"].forEach(id => setVal(id,""));
+      setVal("ioInput","0");
+      setVal("ioUrine","0");
+      setVal("ioBm","0");
+      setVal("ioDrainage","0");
+      setVal("ioVomit","0");
+    });
+
+    document.getElementById("patientSearchBtn").addEventListener("click", () => {
+      renderSearchPatients(document.getElementById("patientSearchInput").value);
+    });
+
+    document.getElementById("patientSearchClearBtn").addEventListener("click", () => {
+      document.getElementById("patientSearchInput").value = "";
+      renderSearchPatients("");
+    });
+
+    document.getElementById("patientSearchInput").addEventListener("keydown", e => {
+      if(e.key === "Enter"){
+        renderSearchPatients(document.getElementById("patientSearchInput").value);
+      }
+    });
+
+    if(state.patients.length && !state.currentPatientId){
+      state.currentPatientId = state.patients[0].id;
+    }
+
+    initAuth();
+    renderAll();
+  </script>
+</body>
+</html>
