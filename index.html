@@ -46,7 +46,7 @@
       gap:14px;
       position:sticky;
       top:0;
-      z-index:30;
+      z-index:40;
       box-shadow:var(--shadow);
     }
 
@@ -185,6 +185,50 @@
 
     .content{
       padding:22px;
+    }
+
+    .sticky-patient-banner{
+      position:sticky;
+      top:86px;
+      z-index:25;
+      margin-bottom:18px;
+    }
+
+    .patient-banner{
+      background:#fff;
+      border:1px solid var(--border);
+      border-left:8px solid var(--yellow);
+      border-radius:16px;
+      box-shadow:var(--shadow);
+      padding:16px;
+    }
+
+    .patient-banner h3{
+      margin:0 0 10px;
+      color:var(--blue-dark);
+    }
+
+    .patient-banner-grid{
+      display:grid;
+      grid-template-columns:repeat(4, minmax(0,1fr));
+      gap:10px 16px;
+      font-size:14px;
+    }
+
+    .patient-banner-item{
+      background:#f9fbff;
+      border:1px solid #e2edf9;
+      border-radius:10px;
+      padding:8px 10px;
+    }
+
+    .patient-banner-item b{
+      display:block;
+      font-size:12px;
+      color:var(--muted);
+      margin-bottom:4px;
+      text-transform:uppercase;
+      letter-spacing:.03em;
     }
 
     .page{display:none}
@@ -359,8 +403,6 @@
       box-shadow:0 20px 45px rgba(0,0,0,.25);
     }
 
-    .small{font-size:12px}
-
     .print-sheet{
       background:#fff;
       color:#000;
@@ -403,8 +445,9 @@
       .app{grid-template-columns:1fr}
       .sidebar{border-right:none;border-bottom:1px solid var(--border)}
       .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .grid-2,.grid-3,.grid-4,.grid-5,.search-row{grid-template-columns:1fr}
+      .grid-2,.grid-3,.grid-4,.grid-5,.search-row,.patient-banner-grid{grid-template-columns:1fr}
       .topbar{position:static}
+      .sticky-patient-banner{top:0}
     }
 
     @media print{
@@ -528,6 +571,13 @@
       </aside>
 
       <main class="content">
+        <div class="sticky-patient-banner">
+          <div id="stickyPatientBanner" class="patient-banner">
+            <h3>Current Patient Summary</h3>
+            <div class="muted">No patient selected yet.</div>
+          </div>
+        </div>
+
         <section id="dashboardPage" class="page active">
           <div class="card">
             <h2>Dashboard</h2>
@@ -634,10 +684,25 @@
                 <input id="religion" type="text">
               </div>
               <div>
+                <label>Blood Type</label>
+                <select id="bloodType">
+                  <option value="">Select</option>
+                  <option>A+</option>
+                  <option>A-</option>
+                  <option>B+</option>
+                  <option>B-</option>
+                  <option>AB+</option>
+                  <option>AB-</option>
+                  <option>O+</option>
+                  <option>O-</option>
+                  <option>Unknown</option>
+                </select>
+              </div>
+
+              <div>
                 <label>Hospital Number</label>
                 <input id="hospitalNumber" type="text">
               </div>
-
               <div>
                 <label>Municipality / City</label>
                 <select id="municipality">
@@ -660,11 +725,11 @@
                   <option value="">Select municipality first</option>
                 </select>
               </div>
+
               <div>
                 <label>Full Address / Street / House No.</label>
                 <input id="streetAddress" type="text">
               </div>
-
               <div>
                 <label>Chief Complaint (CC)</label>
                 <input id="cc" type="text">
@@ -673,11 +738,11 @@
                 <label>Admitting Diagnosis</label>
                 <input id="admittingDiagnosis" type="text">
               </div>
+
               <div>
                 <label>Other Diagnoses</label>
                 <input id="otherDiagnoses" type="text">
               </div>
-
               <div>
                 <label>Allergies (Food, Meds, Scents, Particles, Others)</label>
                 <input id="allergies" type="text">
@@ -686,11 +751,11 @@
                 <label>Reaction to Allergies</label>
                 <input id="allergyReaction" type="text">
               </div>
+
               <div>
                 <label>Diet</label>
                 <input id="diet" type="text">
               </div>
-
               <div style="grid-column: span 2;">
                 <label>Contact in Case of Emergency</label>
                 <input id="emergencyContact" type="text" placeholder="Name / Relationship / Contact Number">
@@ -1171,7 +1236,7 @@
   <script>
     "use strict";
 
-    const STORAGE_KEY = "msh_his_multi_patient_v2";
+    const STORAGE_KEY = "msh_his_multi_patient_v3";
     const SESSION_KEY = "msh_his_session";
     const PRIVACY_KEY = "msh_his_privacy_skip";
 
@@ -1481,6 +1546,50 @@
       document.getElementById("ageDisplay").value = calculateAgeYMD(e.target.value);
     });
 
+    function buildStickyBannerHtml(rec){
+      if(!rec || !rec.patient.patientName){
+        return `
+          <h3>Current Patient Summary</h3>
+          <div class="muted">No patient selected yet.</div>
+        `;
+      }
+
+      const p = rec.patient;
+      const addr = [p.streetAddress, p.barangay, p.municipality].filter(Boolean).join(", ");
+      const tagList = [];
+      if(p.tags?.fallRisk) tagList.push("Risk for Fall");
+      if(p.tags?.psychiatric) tagList.push("Psychiatric Patient");
+      if(p.tags?.closeMonitoring) tagList.push("Close Monitoring");
+      if(p.tags?.isolation) tagList.push("Isolation");
+      if(p.tags?.seizure) tagList.push("Seizure Precaution");
+      if(p.tags?.aspiration) tagList.push("Aspiration Precaution");
+      if(p.tags?.bleeding) tagList.push("Bleeding Precaution");
+      if(p.tags?.otherToggle && p.tags?.otherText) tagList.push(p.tags.otherText);
+
+      return `
+        <h3>Current Patient Summary</h3>
+        <div class="patient-banner-grid">
+          <div class="patient-banner-item"><b>Name</b>${escapeHtml(p.patientName || "")}</div>
+          <div class="patient-banner-item"><b>Hospital No.</b>${escapeHtml(p.hospitalNumber || "")}</div>
+          <div class="patient-banner-item"><b>Age / Sex</b>${escapeHtml(p.ageDisplay || "")} ${p.sex ? " / " + escapeHtml(p.sex) : ""}</div>
+          <div class="patient-banner-item"><b>Blood Type</b>${escapeHtml(p.bloodType || "")}</div>
+
+          <div class="patient-banner-item"><b>Diagnosis</b>${escapeHtml(p.admittingDiagnosis || "")}</div>
+          <div class="patient-banner-item"><b>Other Dx</b>${escapeHtml(p.otherDiagnoses || "")}</div>
+          <div class="patient-banner-item"><b>Diet</b>${escapeHtml(p.diet || "")}</div>
+          <div class="patient-banner-item"><b>Allergies</b>${escapeHtml(p.allergies || "")}</div>
+
+          <div class="patient-banner-item"><b>Reaction</b>${escapeHtml(p.allergyReaction || "")}</div>
+          <div class="patient-banner-item"><b>Chief Complaint</b>${escapeHtml(p.cc || "")}</div>
+          <div class="patient-banner-item"><b>Emergency Contact</b>${escapeHtml(p.emergencyContact || "")}</div>
+          <div class="patient-banner-item"><b>Admission</b>${escapeHtml(p.admissionDateTime || "")}</div>
+
+          <div class="patient-banner-item" style="grid-column: span 4;"><b>Address</b>${escapeHtml(addr || "")}</div>
+          <div class="patient-banner-item" style="grid-column: span 4;"><b>Tags / Precautions</b>${escapeHtml(tagList.join(", ") || "None")}</div>
+        </div>
+      `;
+    }
+
     function renderDashboard(){
       const rec = getCurrentRecord();
       document.getElementById("metricPatients").textContent = state.patients.length;
@@ -1501,7 +1610,7 @@
       const addr = [p.streetAddress, p.barangay, p.municipality].filter(Boolean).join(", ");
       summary.innerHTML = `
         <b>${escapeHtml(p.patientName)}</b><br>
-        Age: ${escapeHtml(p.ageDisplay || "")} | Sex: ${escapeHtml(p.sex || "")} | Religion: ${escapeHtml(p.religion || "")}<br>
+        Age: ${escapeHtml(p.ageDisplay || "")} | Sex: ${escapeHtml(p.sex || "")} | Religion: ${escapeHtml(p.religion || "")} | Blood Type: ${escapeHtml(p.bloodType || "")}<br>
         Hospital No.: ${escapeHtml(p.hospitalNumber || "")}<br>
         Address: ${escapeHtml(addr)}<br>
         CC: ${escapeHtml(p.cc || "")}<br>
@@ -1529,6 +1638,11 @@
         : `<span class="flag">No tags yet</span>`;
     }
 
+    function renderStickyBanner(){
+      const rec = getCurrentRecord();
+      document.getElementById("stickyPatientBanner").innerHTML = buildStickyBannerHtml(rec);
+    }
+
     function renderDemographicInputs(){
       const rec = getCurrentRecord();
       const p = rec?.patient || {};
@@ -1537,6 +1651,7 @@
       setVal("ageDisplay", p.ageDisplay);
       setVal("sex", p.sex);
       setVal("religion", p.religion);
+      setVal("bloodType", p.bloodType);
       setVal("hospitalNumber", p.hospitalNumber);
       setVal("municipality", p.municipality);
       populateBarangays(p.municipality, p.barangay);
@@ -1818,12 +1933,13 @@
           <tr><th>Patient Name</th><td>${escapeHtml(p.patientName || "")}</td><th>Hospital Number</th><td>${escapeHtml(p.hospitalNumber || "")}</td></tr>
           <tr><th>Birthday</th><td>${escapeHtml(p.birthday || "")}</td><th>Age</th><td>${escapeHtml(p.ageDisplay || "")}</td></tr>
           <tr><th>Sex</th><td>${escapeHtml(p.sex || "")}</td><th>Religion</th><td>${escapeHtml(p.religion || "")}</td></tr>
+          <tr><th>Blood Type</th><td>${escapeHtml(p.bloodType || "")}</td><th>Diet</th><td>${escapeHtml(p.diet || "")}</td></tr>
           <tr><th>Address</th><td colspan="3">${escapeHtml(addr)}</td></tr>
           <tr><th>CC</th><td colspan="3">${escapeHtml(p.cc || "")}</td></tr>
           <tr><th>Admitting Diagnosis</th><td colspan="3">${escapeHtml(p.admittingDiagnosis || "")}</td></tr>
           <tr><th>Other Diagnoses</th><td colspan="3">${escapeHtml(p.otherDiagnoses || "")}</td></tr>
           <tr><th>Allergies</th><td>${escapeHtml(p.allergies || "")}</td><th>Reaction to Allergies</th><td>${escapeHtml(p.allergyReaction || "")}</td></tr>
-          <tr><th>Diet</th><td>${escapeHtml(p.diet || "")}</td><th>Emergency Contact</th><td>${escapeHtml(p.emergencyContact || "")}</td></tr>
+          <tr><th>Emergency Contact</th><td colspan="3">${escapeHtml(p.emergencyContact || "")}</td></tr>
           <tr><th>Date & Time of Admission</th><td colspan="3">${escapeHtml(p.admissionDateTime || "")}</td></tr>
           <tr><th>Patient Tags</th><td colspan="3">${escapeHtml(tags.join(", ") || "None")}</td></tr>
         </table>
@@ -1973,6 +2089,7 @@
 
     function renderAll(){
       renderDashboard();
+      renderStickyBanner();
       renderDemographicInputs();
       renderHeadToToeInputs();
       renderVitals();
@@ -2007,6 +2124,7 @@
         ageDisplay: calculateAgeYMD(birthday),
         sex: val("sex"),
         religion: val("religion"),
+        bloodType: val("bloodType"),
         hospitalNumber: val("hospitalNumber"),
         municipality: val("municipality"),
         barangay: val("barangay"),
