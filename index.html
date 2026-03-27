@@ -852,6 +852,13 @@
             <h3>Vital Signs Entries</h3>
             <div class="table-wrap">
               <table>
+                <div class="card">
+  <h3>Vital Signs Graphic Chart</h3>
+  <p class="muted">Black = Temperature | Red = HR | BP shown below</p>
+  <div style="overflow:auto;">
+    <canvas id="vsChartCanvas" width="1100" height="520" style="width:100%; max-width:1100px; background:#fffdf5; border:1px solid #d7dee8; border-radius:12px;"></canvas>
+  </div>
+</div>
                 <thead>
                   <tr>
                     <th>Date</th>
@@ -1682,6 +1689,217 @@
     }
 
     function renderVitals(){
+    function drawVitalSignsChart(){
+  const rec = getCurrentRecord();
+  const canvas = document.getElementById("vsChartCanvas");
+  if(!canvas) return;
+
+  const ctx = canvas.getContext("2d");
+  const W = canvas.width;
+  const H = canvas.height;
+
+  ctx.clearRect(0, 0, W, H);
+
+  // Background
+  ctx.fillStyle = "#fffdf5";
+  ctx.fillRect(0, 0, W, H);
+
+  // If no record or no vitals
+  if(!rec || !rec.vitals || rec.vitals.length === 0){
+    ctx.fillStyle = "#666";
+    ctx.font = "16px Arial";
+    ctx.fillText("No vital signs data yet.", 30, 40);
+    return;
+  }
+
+  const data = sortByLatest(rec.vitals)
+    .slice()
+    .reverse(); // oldest to newest for left-to-right plotting
+
+  // Layout
+  const marginLeft = 80;
+  const marginRight = 30;
+  const marginTop = 40;
+  const marginBottom = 120;
+
+  const chartX = marginLeft;
+  const chartY = marginTop;
+  const chartW = W - marginLeft - marginRight;
+  const chartH = H - marginTop - marginBottom;
+
+  // Scales
+  const tempMin = 35;
+  const tempMax = 41;
+  const hrMin = 40;
+  const hrMax = 180;
+
+  // Grid
+  ctx.strokeStyle = "#d9d9d9";
+  ctx.lineWidth = 1;
+
+  const horizontalLines = 12;
+  for(let i = 0; i <= horizontalLines; i++){
+    const y = chartY + (chartH / horizontalLines) * i;
+    ctx.beginPath();
+    ctx.moveTo(chartX, y);
+    ctx.lineTo(chartX + chartW, y);
+    ctx.stroke();
+  }
+
+  const verticalCount = Math.max(data.length, 1);
+  for(let i = 0; i < verticalCount; i++){
+    const x = chartX + (chartW / Math.max(verticalCount - 1, 1)) * i;
+    ctx.beginPath();
+    ctx.moveTo(x, chartY);
+    ctx.lineTo(x, chartY + chartH);
+    ctx.stroke();
+  }
+
+  // Border
+  ctx.strokeStyle = "#999";
+  ctx.lineWidth = 1.2;
+  ctx.strokeRect(chartX, chartY, chartW, chartH);
+
+  // Left labels: Temp
+  ctx.fillStyle = "#111";
+  ctx.font = "12px Arial";
+  ctx.textAlign = "right";
+  ctx.textBaseline = "middle";
+
+  for(let t = tempMin; t <= tempMax; t += 0.5){
+    const y = chartY + chartH - ((t - tempMin) / (tempMax - tempMin)) * chartH;
+    if (Math.abs(t - Math.round(t)) < 0.001) {
+      ctx.fillText(`${t.toFixed(0)}°C`, chartX - 10, y);
+    }
+  }
+
+  // Right labels: HR
+  ctx.textAlign = "left";
+  for(let hr = hrMin; hr <= hrMax; hr += 10){
+    const y = chartY + chartH - ((hr - hrMin) / (hrMax - hrMin)) * chartH;
+    ctx.fillText(`${hr}`, chartX + chartW + 10, y);
+  }
+
+  // Axis titles
+  ctx.save();
+  ctx.translate(22, chartY + chartH / 2);
+  ctx.rotate(-Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.font = "bold 13px Arial";
+  ctx.fillStyle = "#111";
+  ctx.fillText("Temperature", 0, 0);
+  ctx.restore();
+
+  ctx.save();
+  ctx.translate(W - 12, chartY + chartH / 2);
+  ctx.rotate(Math.PI / 2);
+  ctx.textAlign = "center";
+  ctx.font = "bold 13px Arial";
+  ctx.fillStyle = "red";
+  ctx.fillText("Heart Rate", 0, 0);
+  ctx.restore();
+
+  // X labels + BP at bottom
+  const xPositions = data.map((entry, i) =>
+    chartX + (chartW / Math.max(data.length - 1, 1)) * i
+  );
+
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
+  ctx.font = "12px Arial";
+  ctx.fillStyle = "#111";
+
+  data.forEach((entry, i) => {
+    const x = xPositions[i];
+    const label1 = entry.date || "";
+    const label2 = entry.time || "";
+    const label3 = entry.shift || "";
+    const bp = entry.bp || "";
+
+    ctx.fillText(label1, x, chartY + chartH + 12);
+    ctx.fillText(label2, x, chartY + chartH + 28);
+    ctx.fillText(label3, x, chartY + chartH + 44);
+
+    ctx.font = "bold 12px Arial";
+    ctx.fillText(bp, x, chartY + chartH + 68);
+    ctx.font = "12px Arial";
+  });
+
+  // BP label
+  ctx.textAlign = "left";
+  ctx.font = "bold 12px Arial";
+  ctx.fillStyle = "#145da0";
+  ctx.fillText("BP:", chartX, chartY + chartH + 68);
+
+  // Helpers
+  function tempToY(temp){
+    return chartY + chartH - ((temp - tempMin) / (tempMax - tempMin)) * chartH;
+  }
+
+  function hrToY(hr){
+    return chartY + chartH - ((hr - hrMin) / (hrMax - hrMin)) * chartH;
+  }
+
+  // Plot Temp (black)
+  const tempPoints = data.map((entry, i) => {
+    const temp = Number(entry.temp);
+    if(Number.isNaN(temp)) return null;
+    return { x: xPositions[i], y: tempToY(temp), value: temp };
+  }).filter(Boolean);
+
+  if(tempPoints.length){
+    ctx.strokeStyle = "#111";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    tempPoints.forEach((p, i) => {
+      if(i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+
+    tempPoints.forEach(p => {
+      ctx.fillStyle = "#111";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  // Plot HR (red)
+  const hrPoints = data.map((entry, i) => {
+    const hr = Number(entry.pulse);
+    if(Number.isNaN(hr)) return null;
+    return { x: xPositions[i], y: hrToY(hr), value: hr };
+  }).filter(Boolean);
+
+  if(hrPoints.length){
+    ctx.strokeStyle = "red";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    hrPoints.forEach((p, i) => {
+      if(i === 0) ctx.moveTo(p.x, p.y);
+      else ctx.lineTo(p.x, p.y);
+    });
+    ctx.stroke();
+
+    hrPoints.forEach(p => {
+      ctx.fillStyle = "red";
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+      ctx.fill();
+    });
+  }
+
+  // Legend
+  ctx.fillStyle = "#111";
+  ctx.fillRect(chartX, 10, 18, 3);
+  ctx.fillText("Temperature", chartX + 60, 4);
+
+  ctx.fillStyle = "red";
+  ctx.fillRect(chartX + 180, 10, 18, 3);
+  ctx.fillStyle = "#111";
+  ctx.fillText("Heart Rate", chartX + 235, 4);
+}
       const rec = getCurrentRecord();
       const tbody = document.getElementById("vitalsTableBody");
       tbody.innerHTML = "";
@@ -2108,20 +2326,22 @@
     }
 
     function renderAll(){
-      renderDashboard();
-      renderStickyBanner();
-      renderDemographicInputs();
-      renderHeadToToeInputs();
-      renderVitals();
-      renderIO();
-      renderDocOrders();
-      renderIv();
-      renderMeds();
-      renderLabs();
-      renderFdar();
-      renderSearchPatients(document.getElementById("patientSearchInput")?.value || "");
-      renderPrintableChart();
-    }
+      function renderAll(){
+  renderDashboard();
+  renderStickyBanner();
+  renderDemographicInputs();
+  renderHeadToToeInputs();
+  renderVitals();
+  renderIO();
+  renderDocOrders();
+  renderIv();
+  renderMeds();
+  renderLabs();
+  renderFdar();
+  renderSearchPatients(document.getElementById("patientSearchInput")?.value || "");
+  renderPrintableChart();
+  drawVitalSignsChart();
+}
 
     document.getElementById("saveDemographicBtn").addEventListener("click", () => {
       let rec = getCurrentRecord();
