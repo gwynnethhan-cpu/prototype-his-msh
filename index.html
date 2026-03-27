@@ -187,13 +187,9 @@
     }
 
     .patient-top-wrap{
-      position:sticky;
-      top:86px;
-      z-index:20;
-      margin-bottom:18px;
-      background:linear-gradient(180deg, #f9fbff 0%, #eef6ff 100%);
-      padding-bottom:8px;
-    }
+  position:static;
+  margin-bottom:18px;
+}
 
     .patient-banner{
       background:#fff;
@@ -449,16 +445,12 @@
     }
 
     @media (max-width: 1024px){
-      .app{grid-template-columns:1fr}
-      .sidebar{border-right:none;border-bottom:1px solid var(--border)}
-      .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-      .grid-2,.grid-3,.grid-4,.search-row,.patient-banner-grid{grid-template-columns:1fr}
-      .topbar{position:static}
-      .patient-top-wrap{
-        top:0;
-        position:static;
-      }
-    }
+  .app{grid-template-columns:1fr}
+  .sidebar{border-right:none;border-bottom:1px solid var(--border)}
+  .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .grid-2,.grid-3,.grid-4,.search-row,.patient-banner-grid{grid-template-columns:1fr}
+  .topbar{position:static}
+}
 
     @media print{
       body *{visibility:hidden}
