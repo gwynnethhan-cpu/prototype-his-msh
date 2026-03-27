@@ -85,7 +85,6 @@
     .btn-secondary{background:#fff; color:var(--blue-dark)}
     .btn-danger{background:#d32f2f; color:#fff}
     .btn-blue{background:var(--blue); color:#fff}
-    .btn-outline{background:#f8fbff; color:var(--blue-dark); border:1px solid var(--border)}
 
     .login-wrap{
       min-height:100vh;
@@ -187,9 +186,9 @@
     }
 
     .patient-top-wrap{
-  position:static;
-  margin-bottom:18px;
-}
+      position:static;
+      margin-bottom:18px;
+    }
 
     .patient-banner{
       background:#fff;
@@ -340,16 +339,6 @@
       color:#111;
     }
 
-    .badge{
-      display:inline-block;
-      padding:4px 8px;
-      border-radius:999px;
-      font-size:12px;
-      font-weight:700;
-      background:#eef2ff;
-      color:#3730a3;
-    }
-
     .pill-danger{
       display:inline-block;
       background:#ffebee;
@@ -445,12 +434,12 @@
     }
 
     @media (max-width: 1024px){
-  .app{grid-template-columns:1fr}
-  .sidebar{border-right:none;border-bottom:1px solid var(--border)}
-  .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .grid-2,.grid-3,.grid-4,.search-row,.patient-banner-grid{grid-template-columns:1fr}
-  .topbar{position:static}
-}
+      .app{grid-template-columns:1fr}
+      .sidebar{border-right:none;border-bottom:1px solid var(--border)}
+      .metric-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .grid-2,.grid-3,.grid-4,.search-row,.patient-banner-grid{grid-template-columns:1fr}
+      .topbar{position:static}
+    }
 
     @media print{
       body *{visibility:hidden}
@@ -507,7 +496,7 @@
 
       <p>
         Data is collected through direct user input by authorized personnel, including but not limited to patient demographic details,
-        assessments, nurses’ notes, medication records, laboratory data, doctor’s orders, vital signs, intake and output records,
+        assessments, FDAR notes, medication records, laboratory data, doctor’s orders, vital signs, intake and output records,
         and related clinical documentation.
       </p>
 
@@ -566,6 +555,7 @@
           <button data-page="ivPage">IV Sheet / IV Fluids Menu</button>
           <button data-page="medPage">Medication Sheet</button>
           <button data-page="labPage">Laboratory Sheet</button>
+          <button data-page="fdarPage">FDAR Notes</button>
           <button data-page="printablePage">Printable Patient Chart View</button>
         </div>
       </aside>
@@ -1062,6 +1052,7 @@
 
             <div class="grid grid-4">
               <div><label>Date</label><input id="medDate" type="date"></div>
+              <div><label>Time</label><input id="medTime" type="time"></div>
               <div><label>Medication Name</label><input id="medName" type="text"></div>
               <div>
                 <label>Route</label>
@@ -1078,7 +1069,6 @@
               </div>
               <div><label>Dosage</label><input id="medDose" type="text"></div>
               <div><label>Frequency</label><input id="medFrequency" type="text" placeholder="e.g. OD, BID, q6h"></div>
-              <div><label>Time</label><input id="medTime" type="time"></div>
               <div>
                 <label>Type</label>
                 <select id="medType">
@@ -1110,11 +1100,11 @@
                 <thead>
                   <tr>
                     <th>Date</th>
+                    <th>Time</th>
                     <th>Medication</th>
                     <th>Route</th>
                     <th>Dose</th>
                     <th>Frequency</th>
-                    <th>Time</th>
                     <th>Type</th>
                     <th>Given</th>
                   </tr>
@@ -1179,14 +1169,6 @@
           </div>
         </section>
 
-        <section id="printablePage" class="page">
-          <div class="card">
-            <h2>Printable Patient Chart View</h2>
-            <p class="muted">Review the chart below, then click Print Patient Chart.</p>
-            <div id="printableChart" class="print-sheet"></div>
-          </div>
-        </section>
-
         <section id="fdarPage" class="page">
           <div class="card">
             <h2>FDAR Notes</h2>
@@ -1214,6 +1196,14 @@
             <div id="fdarList"></div>
           </div>
         </section>
+
+        <section id="printablePage" class="page">
+          <div class="card">
+            <h2>Printable Patient Chart View</h2>
+            <p class="muted">Review the chart below, then click Print Patient Chart.</p>
+            <div id="printableChart" class="print-sheet"></div>
+          </div>
+        </section>
       </main>
     </div>
   </div>
@@ -1221,7 +1211,7 @@
   <script>
     "use strict";
 
-    const STORAGE_KEY = "msh_his_multi_patient_v4";
+    const STORAGE_KEY = "msh_his_multi_patient_v5";
     const SESSION_KEY = "msh_his_session";
     const PRIVACY_KEY = "msh_his_privacy_skip";
 
@@ -1324,6 +1314,14 @@
       localStorage.removeItem(PRIVACY_KEY);
       sessionStorage.removeItem(SESSION_KEY);
       location.reload();
+    }
+
+    function sortByLatest(items){
+      return [...items].sort((a, b) => {
+        const aDate = new Date(`${a.date || ""}T${a.time || "00:00"}`);
+        const bDate = new Date(`${b.date || ""}T${b.time || "00:00"}`);
+        return bDate - aDate;
+      });
     }
 
     const state = loadState();
@@ -1688,7 +1686,7 @@
       const tbody = document.getElementById("vitalsTableBody");
       tbody.innerHTML = "";
       if(!rec) return;
-      rec.vitals.forEach(v => {
+      sortByLatest(rec.vitals).forEach(v => {
         const a = assessVitals(v, rec);
         const tr = document.createElement("tr");
         tr.innerHTML = `
@@ -1711,7 +1709,7 @@
       const tbody = document.getElementById("ivTableBody");
       tbody.innerHTML = "";
       if(!rec) return;
-      rec.iv.forEach(x => {
+      sortByLatest(rec.iv).forEach(x => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${escapeHtml(x.date)}</td>
@@ -1732,15 +1730,15 @@
       const tbody = document.getElementById("medTableBody");
       tbody.innerHTML = "";
       if(!rec) return;
-      rec.medications.forEach(x => {
+      sortByLatest(rec.medications).forEach(x => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${escapeHtml(x.date)}</td>
+          <td>${escapeHtml(x.time)}</td>
           <td>${escapeHtml(x.name)}</td>
           <td>${escapeHtml(x.route)}</td>
           <td>${escapeHtml(x.dose)}</td>
           <td>${escapeHtml(x.frequency)}</td>
-          <td>${escapeHtml(x.time)}</td>
           <td>${escapeHtml(x.type)}</td>
           <td>${x.given === "Yes" ? '<span class="success">Given</span>' : '<span class="danger">Not Given</span>'}</td>
         `;
@@ -1753,7 +1751,7 @@
       const tbody = document.getElementById("docOrderTableBody");
       tbody.innerHTML = "";
       if(!rec) return;
-      rec.doctorsOrders.forEach(x => {
+      sortByLatest(rec.doctorsOrders).forEach(x => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${escapeHtml(x.date)}</td>
@@ -1769,13 +1767,12 @@
     function renderFdar(){
       const rec = getCurrentRecord();
       const wrap = document.getElementById("fdarList");
-      if(!wrap) return;
       wrap.innerHTML = "";
       if(!rec || rec.fdarNotes.length === 0){
         wrap.innerHTML = `<p class="muted">No FDAR notes yet.</p>`;
         return;
       }
-      rec.fdarNotes.forEach(note => {
+      sortByLatest(rec.fdarNotes).forEach(note => {
         const div = document.createElement("div");
         div.className = "card";
         div.innerHTML = `
@@ -1798,7 +1795,7 @@
       const tbody = document.getElementById("labTableBody");
       tbody.innerHTML = "";
       if(!rec) return;
-      rec.labs.forEach(x => {
+      sortByLatest(rec.labs).forEach(x => {
         const tr = document.createElement("tr");
         tr.innerHTML = `
           <td>${escapeHtml(x.date)}</td>
@@ -1822,7 +1819,7 @@
         return;
       }
 
-      rec.io.forEach(x => {
+      sortByLatest(rec.io).forEach(x => {
         const input = Number(x.input) || 0;
         const urine = Number(x.urine) || 0;
         const bm = Number(x.bm) || 0;
@@ -1948,6 +1945,10 @@
 
         <h3 style="margin-top:16px;">Head-to-Toe Assessment</h3>
         <table class="print-table">
+          <colgroup>
+            <col style="width:32%">
+            <col style="width:68%">
+          </colgroup>
           <tr><th>General Appearance</th><td>${escapeHtml(rec.headToToe.general || "")}</td></tr>
           <tr><th>Neurologic / Mental Status</th><td>${escapeHtml(rec.headToToe.neuro || "")}</td></tr>
           <tr><th>HEENT</th><td>${escapeHtml(rec.headToToe.heent || "")}</td></tr>
@@ -1966,7 +1967,7 @@
             <tr><th>Date</th><th>Time</th><th>Shift</th><th>Temp</th><th>Pulse</th><th>Resp</th><th>BP</th><th>O2</th></tr>
           </thead>
           <tbody>
-            ${rec.vitals.slice(0,10).map(v => `
+            ${sortByLatest(rec.vitals).slice(0,10).map(v => `
               <tr>
                 <td>${escapeHtml(v.date)}</td>
                 <td>${escapeHtml(v.time)}</td>
@@ -1987,7 +1988,7 @@
             <tr><th>Date</th><th>Time</th><th>Shift</th><th>Route</th><th>Input</th><th>Total Output</th><th>Net I&amp;O</th></tr>
           </thead>
           <tbody>
-            ${rec.io.slice(0,15).map(i => {
+            ${sortByLatest(rec.io).slice(0,15).map(i => {
               const input = Number(i.input)||0;
               const output = (Number(i.urine)||0)+(Number(i.bm)||0)+(Number(i.drainage)||0)+(Number(i.vomit)||0);
               const net = input-output;
@@ -2012,7 +2013,7 @@
             <tr><th>Date</th><th>Time</th><th>Physician</th><th>Order</th><th>Carried Out By</th></tr>
           </thead>
           <tbody>
-            ${rec.doctorsOrders.slice(0,10).map(d => `
+            ${sortByLatest(rec.doctorsOrders).slice(0,10).map(d => `
               <tr>
                 <td>${escapeHtml(d.date)}</td>
                 <td>${escapeHtml(d.time)}</td>
@@ -2030,7 +2031,7 @@
             <tr><th>Date</th><th>Time</th><th>Fluid</th><th>Volume</th><th>Rate</th><th>Site</th><th>Remarks</th></tr>
           </thead>
           <tbody>
-            ${rec.iv.slice(0,10).map(v => `
+            ${sortByLatest(rec.iv).slice(0,10).map(v => `
               <tr>
                 <td>${escapeHtml(v.date)}</td>
                 <td>${escapeHtml(v.time)}</td>
@@ -2047,17 +2048,17 @@
         <h3 style="margin-top:16px;">Medication Sheet</h3>
         <table class="print-table">
           <thead>
-            <tr><th>Date</th><th>Medication</th><th>Route</th><th>Dose</th><th>Frequency</th><th>Time</th><th>Type</th><th>Given</th></tr>
+            <tr><th>Date</th><th>Time</th><th>Medication</th><th>Route</th><th>Dose</th><th>Frequency</th><th>Type</th><th>Given</th></tr>
           </thead>
           <tbody>
-            ${rec.medications.slice(0,15).map(m => `
+            ${sortByLatest(rec.medications).slice(0,15).map(m => `
               <tr>
                 <td>${escapeHtml(m.date)}</td>
+                <td>${escapeHtml(m.time)}</td>
                 <td>${escapeHtml(m.name)}</td>
                 <td>${escapeHtml(m.route)}</td>
                 <td>${escapeHtml(m.dose)}</td>
                 <td>${escapeHtml(m.frequency)}</td>
-                <td>${escapeHtml(m.time)}</td>
                 <td>${escapeHtml(m.type)}</td>
                 <td>${escapeHtml(m.given)}</td>
               </tr>
@@ -2071,7 +2072,7 @@
             <tr><th>Date</th><th>Time</th><th>Type</th><th>Results</th><th>Remarks</th></tr>
           </thead>
           <tbody>
-            ${rec.labs.slice(0,10).map(l => `
+            ${sortByLatest(rec.labs).slice(0,10).map(l => `
               <tr>
                 <td>${escapeHtml(l.date)}</td>
                 <td>${escapeHtml(l.time)}</td>
@@ -2089,7 +2090,7 @@
             <tr><th>Date/Time</th><th>FDAR</th><th>Author</th></tr>
           </thead>
           <tbody>
-            ${rec.fdarNotes.slice(0,10).map(n => `
+            ${sortByLatest(rec.fdarNotes).slice(0,10).map(n => `
               <tr>
                 <td>${escapeHtml(n.date)} ${escapeHtml(n.time)}</td>
                 <td>
@@ -2314,21 +2315,21 @@
       }
       const entry = {
         date: val("medDate"),
+        time: val("medTime"),
         name: val("medName"),
         route: val("medRoute"),
         dose: val("medDose"),
         frequency: val("medFrequency"),
-        time: val("medTime"),
         type: val("medType"),
         given: val("medGiven")
       };
-      if(!entry.date || !entry.name){
-        alert("Medication date and name are required.");
+      if(!entry.date || !entry.time || !entry.name){
+        alert("Medication date, time, and name are required.");
         return;
       }
       rec.medications.unshift(entry);
       saveState();
-      ["medDate","medName","medRoute","medDose","medFrequency","medTime","medType","medGiven"].forEach(id => setVal(id,""));
+      ["medDate","medTime","medName","medRoute","medDose","medFrequency","medType","medGiven"].forEach(id => setVal(id,""));
     });
 
     document.getElementById("addLabBtn").addEventListener("click", () => {
@@ -2344,8 +2345,8 @@
         results: val("labResults"),
         remarks: val("labRemarks")
       };
-      if(!entry.date || !entry.type){
-        alert("Lab date and type are required.");
+      if(!entry.date || !entry.time || !entry.type){
+        alert("Lab date, time, and type are required.");
         return;
       }
       rec.labs.unshift(entry);
@@ -2395,19 +2396,6 @@
     if(state.patients.length && !state.currentPatientId){
       state.currentPatientId = state.patients[0].id;
     }
-
-    // Add FDAR to menu after lab in desired order by inserting hidden page button behavior
-    (function ensureFdarMenuOrder(){
-      const menu = document.getElementById("menu");
-      const labBtn = [...menu.querySelectorAll("button")].find(b => b.dataset.page === "labPage");
-      if(labBtn && ![...menu.querySelectorAll("button")].some(b => b.dataset.page === "fdarPage")){
-        const fdarBtn = document.createElement("button");
-        fdarBtn.dataset.page = "fdarPage";
-        fdarBtn.textContent = "FDAR Notes";
-        labBtn.insertAdjacentElement("afterend", fdarBtn);
-        fdarBtn.addEventListener("click", () => showPage("fdarPage"));
-      }
-    })();
 
     initAuth();
     renderAll();
