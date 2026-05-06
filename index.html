@@ -433,6 +433,18 @@
       flex-wrap:wrap;
     }
 
+    .completed-row{
+      background:#e8f5e9 !important;
+      color:var(--success);
+      font-weight:700;
+    }
+
+    #loginDeniedMessage{
+      margin-top:12px;
+      color:var(--danger);
+      font-weight:800;
+    }
+
     @media (max-width: 1024px){
       .app{grid-template-columns:1fr}
       .sidebar{border-right:none;border-bottom:1px solid var(--border)}
@@ -482,6 +494,7 @@
         <button class="btn-primary" id="loginBtn">Log In</button>
         <button class="btn-secondary" id="resetAllBtn" type="button">Reset All Local Records</button>
       </div>
+      <div id="loginDeniedMessage" aria-live="polite"></div>
     </div>
   </div>
 
@@ -618,6 +631,14 @@
             <h2>Search Patient</h2>
             <div class="search-row">
               <input id="patientSearchInput" type="text" placeholder="Search by patient name or hospital number">
+              <select id="patientCategorySearch">
+                <option value="All">All Categories</option>
+                <option>Adult</option>
+                <option>Pediatric</option>
+                <option>Geriatric</option>
+                <option>Psychiatric</option>
+                <option>Obstetric</option>
+              </select>
               <button class="btn-primary" id="patientSearchBtn">Search</button>
               <button class="btn-secondary" id="patientSearchClearBtn">Show All</button>
             </div>
@@ -633,6 +654,7 @@
                     <th>Hospital Number</th>
                     <th>Age</th>
                     <th>Sex</th>
+                    <th>Category</th>
                     <th>Admitting Diagnosis</th>
                     <th>Action</th>
                   </tr>
@@ -670,6 +692,17 @@
                 </select>
               </div>
               <div>
+                <label>Patient Category</label>
+                <select id="patientCategory">
+                  <option value="">Select</option>
+                  <option>Adult</option>
+                  <option>Pediatric</option>
+                  <option>Geriatric</option>
+                  <option>Psychiatric</option>
+                  <option>Obstetric</option>
+                </select>
+              </div>
+              <div>
                 <label>Religion</label>
                 <input id="religion" type="text">
               </div>
@@ -691,7 +724,11 @@
 
               <div>
                 <label>Hospital Number</label>
-                <input id="hospitalNumber" type="text">
+                <input id="hospitalNumber" type="text" readonly placeholder="Auto-generated 6-digit no.">
+              </div>
+              <div>
+                <label>Attending Physician</label>
+                <input id="attendingPhysician" type="text" placeholder="Enter attending physician">
               </div>
               <div>
                 <label>Municipality / City</label>
@@ -744,7 +781,20 @@
 
               <div>
                 <label>Diet</label>
-                <input id="diet" type="text">
+                <select id="diet">
+                  <option value="">Select</option>
+                  <option>Regular Diet</option>
+                  <option>Soft Diet</option>
+                  <option>Clear Liquid Diet</option>
+                  <option>Full Liquid Diet</option>
+                  <option>NPO</option>
+                  <option>Low Sodium Diet</option>
+                  <option>Diabetic Diet</option>
+                  <option>Renal Diet</option>
+                  <option>Low Fat Diet</option>
+                  <option>High Fiber Diet</option>
+                  <option>Others</option>
+                </select>
               </div>
               <div style="grid-column: span 2;">
                 <label>Contact in Case of Emergency</label>
@@ -841,6 +891,20 @@
               <div><label>Respiratory Rate</label><input id="vsResp" type="number"></div>
               <div><label>Blood Pressure</label><input id="vsBP" type="text" placeholder="e.g. 120/80"></div>
               <div><label>O2 Saturation (%)</label><input id="vsO2" type="number"></div>
+              <div>
+                <label>LOC</label>
+                <select id="vsLOC">
+                  <option value="">Select</option>
+                  <option>Alert</option>
+                  <option>Drowsy</option>
+                  <option>Lethargic</option>
+                  <option>Obtunded</option>
+                  <option>Stuporous</option>
+                  <option>Comatose</option>
+                  <option>GCS Monitoring</option>
+                </select>
+              </div>
+              <div><label>Nurse Who Took the V/S</label><input id="vsNurse" type="text" ></div>
             </div>
 
             <div style="margin-top:16px;">
@@ -862,6 +926,8 @@
                     <th>Resp</th>
                     <th>BP</th>
                     <th>O2 Sat</th>
+                    <th>LOC</th>
+                    <th>Nurse</th>
                     <th>Assessment</th>
                   </tr>
                 </thead>
@@ -912,7 +978,7 @@
 
               <div><label>Input Amount (mL)</label><input id="ioInput" type="number" value="0"></div>
               <div><label>Urine (mL)</label><input id="ioUrine" type="number" value="0"></div>
-              <div><label>BM</label><input id="ioBm" type="number" value="0"></div>
+              <div><label>BM Count</label><input id="ioBm" type="number" min="0" value="0" placeholder="0 if none, 1 if with BM"></div>
               <div><label>Drainage (mL)</label><input id="ioDrainage" type="number" value="0"></div>
               <div><label>Vomit (mL)</label><input id="ioVomit" type="number" value="0"></div>
               <div style="grid-column:span 3;">
@@ -941,7 +1007,7 @@
                     <th>BM</th>
                     <th>Drainage</th>
                     <th>Vomit</th>
-                    <th>Total Output</th>
+                    <th>Total Output (mL; BM excluded)</th>
                     <th>Net I&amp;O</th>
                     <th>Remarks</th>
                   </tr>
@@ -951,7 +1017,7 @@
             </div>
 
             <div id="ioTotalsBox" class="summary-box" style="margin-top:14px;">
-              Total Input: 0 mL | Total Output: 0 mL | Net I&amp;O: 0 mL
+              Total Input: 0 mL | Total Output: 0 mL | BM: x 0 | Net I&amp;O: 0 mL
             </div>
           </div>
         </section>
@@ -1022,7 +1088,33 @@
               </div>
               <div><label>Volume (mL)</label><input id="ivVolume" type="number"></div>
               <div><label>Rate (mL/hr)</label><input id="ivRate" type="number"></div>
-              <div><label>Site</label><input id="ivSite" type="text"></div>
+              <div>
+                <label>Drop Factor</label>
+                <select id="ivDropFactor">
+                  <option value="">Select</option>
+                  <option value="10">10 gtts/mL</option>
+                  <option value="15">15 gtts/mL</option>
+                  <option value="20">20 gtts/mL</option>
+                  <option value="60">60 gtts/mL</option>
+                </select>
+              </div>
+              <div><label>Computed Drop Rate</label><input id="ivDropRate" type="text" readonly placeholder="Auto gtts/min"></div>
+              <div><label>Estimated End Time</label><input id="ivEstimatedEnd" type="datetime-local"></div>
+              <div>
+                <label>Site</label>
+                <select id="ivSite">
+                  <option value="">Select IV Site</option>
+                  <option>Left Hand</option>
+                  <option>Right Hand</option>
+                  <option>Left Forearm</option>
+                  <option>Right Forearm</option>
+                  <option>Left Antecubital</option>
+                  <option>Right Antecubital</option>
+                  <option>Left Foot</option>
+                  <option>Right Foot</option>
+                  <option>Others</option>
+                </select>
+              </div>
               <div><label>Patency / Remarks</label><input id="ivRemarks" type="text"></div>
               <div><label>Nurse</label><input id="ivNurse" type="text"></div>
             </div>
@@ -1043,9 +1135,14 @@
                     <th>Fluid</th>
                     <th>Volume</th>
                     <th>Rate</th>
+                    <th>Drop Factor</th>
+                    <th>Drop Rate</th>
+                    <th>Estimated End Time</th>
                     <th>Site</th>
                     <th>Remarks</th>
                     <th>Nurse</th>
+                    <th>Done?</th>
+                    <th>Actual Time Ended</th>
                   </tr>
                 </thead>
                 <tbody id="ivTableBody"></tbody>
@@ -1060,7 +1157,25 @@
 
             <div class="grid grid-4">
               <div><label>Date</label><input id="medDate" type="date"></div>
-              <div><label>Time</label><input id="medTime" type="time"></div>
+              <div>
+                <label>Frequency</label>
+                <select id="medFrequency">
+                  <option value="">Select</option>
+                  <option value="OD">OD - 8 AM</option>
+                  <option value="BID">BID - 6 AM, 8 PM</option>
+                  <option value="TID">TID - 6 AM, 1 PM, 8 PM</option>
+                  <option value="QID">QID - 6 AM, 12 NN, 6 PM, 12 MN</option>
+                  <option value="STAT">STAT</option>
+                  <option value="PRN">PRN</option>
+                  <option value="Others">Others</option>
+                </select>
+              </div>
+              <div>
+                <label>Scheduled Time Given</label>
+                <select id="medTime">
+                  <option value="">Select frequency first</option>
+                </select>
+              </div>
               <div><label>Medication Name</label><input id="medName" type="text"></div>
               <div>
                 <label>Route</label>
@@ -1076,7 +1191,6 @@
                 </select>
               </div>
               <div><label>Dosage</label><input id="medDose" type="text"></div>
-              <div><label>Frequency</label><input id="medFrequency" type="text" placeholder="e.g. OD, BID, q6h"></div>
               <div>
                 <label>Type</label>
                 <select id="medType">
@@ -1108,7 +1222,7 @@
                 <thead>
                   <tr>
                     <th>Date</th>
-                    <th>Time</th>
+                    <th>Scheduled Time Given</th>
                     <th>Medication</th>
                     <th>Route</th>
                     <th>Dose</th>
@@ -1260,6 +1374,27 @@
       return "p_" + Math.random().toString(36).slice(2,10) + Date.now().toString(36);
     }
 
+    function generateSixDigitHospitalNumber(){
+      const existing = new Set((state?.patients || [])
+        .map(rec => rec?.patient?.hospitalNumber)
+        .filter(Boolean));
+
+      let number = "";
+      do{
+        number = String(Math.floor(100000 + Math.random() * 900000));
+      }while(existing.has(number));
+
+      return number;
+    }
+
+    function createNewPatientRecordWithoutRender(){
+      const rec = emptyPatientRecord();
+      rec.patient.hospitalNumber = generateSixDigitHospitalNumber();
+      state.patients.unshift(rec);
+      state.currentPatientId = rec.id;
+      return rec;
+    }
+
     function escapeHtml(str){
       if(str === null || str === undefined) return "";
       return String(str)
@@ -1294,11 +1429,9 @@
     }
 
     function createNewPatientRecord(){
-      const rec = emptyPatientRecord();
-      state.patients.unshift(rec);
-      state.currentPatientId = rec.id;
+      createNewPatientRecordWithoutRender();
       saveState();
-      alert("New patient record created.");
+      alert("New patient record created. A 6-digit hospital number was generated automatically.");
     }
 
     function deletePatientRecord(id){
@@ -1369,9 +1502,10 @@
         if(localStorage.getItem(PRIVACY_KEY) !== "yes"){
           privacyModal.classList.remove("hidden");
         }
+        document.getElementById("loginDeniedMessage").textContent = "";
         renderAll();
       }else{
-        alert("Invalid login credentials.");
+        document.getElementById("loginDeniedMessage").textContent = "Access Denied: Incorrect username or password.";
       }
     });
 
@@ -1571,7 +1705,9 @@
           <div class="patient-banner-item"><b>Name</b>${escapeHtml(p.patientName || "")}</div>
           <div class="patient-banner-item"><b>Hospital No.</b>${escapeHtml(p.hospitalNumber || "")}</div>
           <div class="patient-banner-item"><b>Age / Sex</b>${escapeHtml(p.ageDisplay || "")}${p.sex ? " / " + escapeHtml(p.sex) : ""}</div>
+          <div class="patient-banner-item"><b>Category</b>${escapeHtml(p.patientCategory || "")}</div>
           <div class="patient-banner-item"><b>Blood Type</b>${escapeHtml(p.bloodType || "")}</div>
+          <div class="patient-banner-item"><b>Attending Physician</b>${escapeHtml(p.attendingPhysician || "")}</div>
 
           <div class="patient-banner-item"><b>Diagnosis</b>${escapeHtml(p.admittingDiagnosis || "")}</div>
           <div class="patient-banner-item"><b>Other Dx</b>${escapeHtml(p.otherDiagnoses || "")}</div>
@@ -1609,8 +1745,9 @@
       const addr = [p.streetAddress, p.barangay, p.municipality].filter(Boolean).join(", ");
       summary.innerHTML = `
         <b>${escapeHtml(p.patientName)}</b><br>
-        Age: ${escapeHtml(p.ageDisplay || "")} | Sex: ${escapeHtml(p.sex || "")} | Religion: ${escapeHtml(p.religion || "")} | Blood Type: ${escapeHtml(p.bloodType || "")}<br>
+        Age: ${escapeHtml(p.ageDisplay || "")} | Sex: ${escapeHtml(p.sex || "")} | Category: ${escapeHtml(p.patientCategory || "")} | Religion: ${escapeHtml(p.religion || "")} | Blood Type: ${escapeHtml(p.bloodType || "")}<br>
         Hospital No.: ${escapeHtml(p.hospitalNumber || "")}<br>
+        Attending Physician: ${escapeHtml(p.attendingPhysician || "")}<br>
         Address: ${escapeHtml(addr)}<br>
         CC: ${escapeHtml(p.cc || "")}<br>
         Admitting Diagnosis: ${escapeHtml(p.admittingDiagnosis || "")}<br>
@@ -1649,9 +1786,15 @@
       setVal("birthday", p.birthday);
       setVal("ageDisplay", p.ageDisplay);
       setVal("sex", p.sex);
+      setVal("patientCategory", p.patientCategory);
       setVal("religion", p.religion);
       setVal("bloodType", p.bloodType);
+      if(rec && !p.hospitalNumber){
+        p.hospitalNumber = generateSixDigitHospitalNumber();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      }
       setVal("hospitalNumber", p.hospitalNumber);
+      setVal("attendingPhysician", p.attendingPhysician);
       setVal("municipality", p.municipality);
       populateBarangays(p.municipality, p.barangay);
       setVal("streetAddress", p.streetAddress);
@@ -1707,6 +1850,8 @@
           <td class="${a.flags.resp ? 'danger' : ''}">${escapeHtml(v.resp)}</td>
           <td class="${a.flags.bp ? 'danger' : ''}">${escapeHtml(v.bp)}</td>
           <td class="${a.flags.o2 ? 'danger' : ''}">${escapeHtml(v.o2)}</td>
+          <td>${escapeHtml(v.loc || "")}</td>
+          <td>${escapeHtml(v.nurse || "")}</td>
           <td>${a.summary.includes("Abnormal") ? '<span class="pill-danger">Abnormal / Needs review</span>' : '<span class="pill-normal">Within expected range</span>'}</td>
         `;
         tbody.appendChild(tr);
@@ -1720,17 +1865,34 @@
       if(!rec) return;
       sortByLatest(rec.iv).forEach(x => {
         const tr = document.createElement("tr");
+        if(x.done) tr.classList.add("completed-row");
         tr.innerHTML = `
           <td>${escapeHtml(x.date)}</td>
           <td>${escapeHtml(x.time)}</td>
           <td>${escapeHtml(x.fluid)}</td>
           <td>${escapeHtml(x.volume)}</td>
           <td>${escapeHtml(x.rate)}</td>
+          <td>${escapeHtml(x.dropFactor || "")}</td>
+          <td>${escapeHtml(x.dropRate || "")}</td>
+          <td>${escapeHtml(x.estimatedEnd || "")}</td>
           <td>${escapeHtml(x.site)}</td>
           <td>${escapeHtml(x.remarks)}</td>
           <td>${escapeHtml(x.nurse)}</td>
+          <td><input type="checkbox" data-iv-id="${x.id}" ${x.done ? "checked" : ""}></td>
+          <td>${escapeHtml(x.endedAt || "")}</td>
         `;
         tbody.appendChild(tr);
+      });
+
+      tbody.querySelectorAll("input[data-iv-id]").forEach(cb => {
+        cb.addEventListener("change", () => {
+          const recNow = getCurrentRecord();
+          const item = recNow?.iv.find(v => v.id === cb.dataset.ivId);
+          if(!item) return;
+          item.done = cb.checked;
+          item.endedAt = cb.checked ? new Date().toLocaleString() : "";
+          saveState();
+        });
       });
     }
 
@@ -1824,7 +1986,7 @@
       let totalInput = 0;
       let totalOutput = 0;
       if(!rec){
-        document.getElementById("ioTotalsBox").innerHTML = `Total Input: 0 mL | Total Output: 0 mL | Net I&amp;O: 0 mL`;
+        document.getElementById("ioTotalsBox").innerHTML = `Total Input: 0 mL | Total Output: 0 mL | BM: x 0 | Net I&amp;O: 0 mL`;
         return;
       }
 
@@ -1834,7 +1996,7 @@
         const bm = Number(x.bm) || 0;
         const drainage = Number(x.drainage) || 0;
         const vomit = Number(x.vomit) || 0;
-        const output = urine + bm + drainage + vomit;
+        const output = urine + drainage + vomit;
         const net = input - output;
         totalInput += input;
         totalOutput += output;
@@ -1847,7 +2009,7 @@
           <td>${escapeHtml(x.route)}</td>
           <td>${input}</td>
           <td>${urine}</td>
-          <td>${bm}</td>
+          <td>BM x ${bm}</td>
           <td>${drainage}</td>
           <td>${vomit}</td>
           <td>${output}</td>
@@ -1858,8 +2020,9 @@
       });
 
       const netTotal = totalInput - totalOutput;
+      const totalBm = rec.io.reduce((sum, x) => sum + (Number(x.bm) || 0), 0);
       document.getElementById("ioTotalsBox").innerHTML =
-        `Total Input: <b>${totalInput} mL</b> | Total Output: <b>${totalOutput} mL</b> | Net I&amp;O: <b class="${netTotal < 0 ? 'danger' : ''}">${netTotal} mL</b>`;
+        `Total Input: <b>${totalInput} mL</b> | Total Output: <b>${totalOutput} mL</b> <span class="muted">(BM excluded)</span> | BM: <b>x ${totalBm}</b> | Net I&amp;O: <b class="${netTotal < 0 ? 'danger' : ''}">${netTotal} mL</b>`;
     }
 
     function renderSearchPatients(filterText=""){
@@ -1867,14 +2030,18 @@
       tbody.innerHTML = "";
 
       const q = filterText.toLowerCase().trim();
+      const selectedCategory = document.getElementById("patientCategorySearch")?.value || "All";
       const list = state.patients.filter(rec => {
         const name = (rec.patient?.patientName || "").toLowerCase();
         const hosp = (rec.patient?.hospitalNumber || "").toLowerCase();
-        return !q || name.includes(q) || hosp.includes(q);
+        const category = rec.patient?.patientCategory || "";
+        const matchesText = !q || name.includes(q) || hosp.includes(q);
+        const matchesCategory = selectedCategory === "All" || category === selectedCategory;
+        return matchesText && matchesCategory;
       });
 
       if(list.length === 0){
-        tbody.innerHTML = `<tr><td colspan="6" class="muted">No matching patients found.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="muted">No matching patients found.</td></tr>`;
         return;
       }
 
@@ -1886,6 +2053,7 @@
           <td>${escapeHtml(p.hospitalNumber || "")}</td>
           <td>${escapeHtml(p.ageDisplay || "")}</td>
           <td>${escapeHtml(p.sex || "")}</td>
+          <td>${escapeHtml(p.patientCategory || "")}</td>
           <td>${escapeHtml(p.admittingDiagnosis || "")}</td>
           <td>
             <div class="action-wrap">
@@ -1940,8 +2108,9 @@
         <table class="print-table">
           <tr><th>Patient Name</th><td>${escapeHtml(p.patientName || "")}</td><th>Hospital Number</th><td>${escapeHtml(p.hospitalNumber || "")}</td></tr>
           <tr><th>Birthday</th><td>${escapeHtml(p.birthday || "")}</td><th>Age</th><td>${escapeHtml(p.ageDisplay || "")}</td></tr>
-          <tr><th>Sex</th><td>${escapeHtml(p.sex || "")}</td><th>Religion</th><td>${escapeHtml(p.religion || "")}</td></tr>
-          <tr><th>Blood Type</th><td>${escapeHtml(p.bloodType || "")}</td><th>Diet</th><td>${escapeHtml(p.diet || "")}</td></tr>
+          <tr><th>Sex</th><td>${escapeHtml(p.sex || "")}</td><th>Category</th><td>${escapeHtml(p.patientCategory || "")}</td></tr>
+          <tr><th>Religion</th><td>${escapeHtml(p.religion || "")}</td><th>Blood Type</th><td>${escapeHtml(p.bloodType || "")}</td></tr>
+          <tr><th>Attending Physician</th><td>${escapeHtml(p.attendingPhysician || "")}</td><th>Diet</th><td>${escapeHtml(p.diet || "")}</td></tr>
           <tr><th>Address</th><td colspan="3">${escapeHtml(addr)}</td></tr>
           <tr><th>CC</th><td colspan="3">${escapeHtml(p.cc || "")}</td></tr>
           <tr><th>Admitting Diagnosis</th><td colspan="3">${escapeHtml(p.admittingDiagnosis || "")}</td></tr>
@@ -1973,7 +2142,7 @@
         <h3 style="margin-top:16px;">Latest Vital Signs</h3>
         <table class="print-table">
           <thead>
-            <tr><th>Date</th><th>Time</th><th>Shift</th><th>Temp</th><th>Pulse</th><th>Resp</th><th>BP</th><th>O2</th></tr>
+            <tr><th>Date</th><th>Time</th><th>Shift</th><th>Temp</th><th>Pulse</th><th>Resp</th><th>BP</th><th>O2</th><th>LOC</th><th>Nurse</th></tr>
           </thead>
           <tbody>
             ${sortByLatest(rec.vitals).slice(0,10).map(v => `
@@ -1986,20 +2155,22 @@
                 <td>${escapeHtml(v.resp)}</td>
                 <td>${escapeHtml(v.bp)}</td>
                 <td>${escapeHtml(v.o2)}</td>
+                <td>${escapeHtml(v.loc || "")}</td>
+                <td>${escapeHtml(v.nurse || "")}</td>
               </tr>
-            `).join("") || `<tr><td colspan="8">No entries</td></tr>`}
+            `).join("") || `<tr><td colspan="10">No entries</td></tr>`}
           </tbody>
         </table>
 
         <h3 style="margin-top:16px;">I &amp; O Summary</h3>
         <table class="print-table">
           <thead>
-            <tr><th>Date</th><th>Time</th><th>Shift</th><th>Route</th><th>Input</th><th>Total Output</th><th>Net I&amp;O</th></tr>
+            <tr><th>Date</th><th>Time</th><th>Shift</th><th>Route</th><th>Input</th><th>Output (mL; BM excluded)</th><th>BM</th><th>Net I&amp;O</th></tr>
           </thead>
           <tbody>
             ${sortByLatest(rec.io).slice(0,15).map(i => {
               const input = Number(i.input)||0;
-              const output = (Number(i.urine)||0)+(Number(i.bm)||0)+(Number(i.drainage)||0)+(Number(i.vomit)||0);
+              const output = (Number(i.urine)||0)+(Number(i.drainage)||0)+(Number(i.vomit)||0);
               const net = input-output;
               return `
                 <tr>
@@ -2009,10 +2180,11 @@
                   <td>${escapeHtml(i.route)}</td>
                   <td>${input}</td>
                   <td>${output}</td>
+                  <td>BM x ${Number(i.bm)||0}</td>
                   <td>${net}</td>
                 </tr>
               `;
-            }).join("") || `<tr><td colspan="7">No entries</td></tr>`}
+            }).join("") || `<tr><td colspan="8">No entries</td></tr>`}
           </tbody>
         </table>
 
@@ -2037,7 +2209,7 @@
         <h3 style="margin-top:16px;">IV Sheet</h3>
         <table class="print-table">
           <thead>
-            <tr><th>Date</th><th>Time</th><th>Fluid</th><th>Volume</th><th>Rate</th><th>Site</th><th>Remarks</th></tr>
+            <tr><th>Date</th><th>Time</th><th>Fluid</th><th>Volume</th><th>Rate</th><th>Drop Factor</th><th>Drop Rate</th><th>Estimated End</th><th>Site</th><th>Remarks</th><th>Nurse</th><th>Status</th><th>Ended</th></tr>
           </thead>
           <tbody>
             ${sortByLatest(rec.iv).slice(0,10).map(v => `
@@ -2047,17 +2219,23 @@
                 <td>${escapeHtml(v.fluid)}</td>
                 <td>${escapeHtml(v.volume)}</td>
                 <td>${escapeHtml(v.rate)}</td>
+                <td>${escapeHtml(v.dropFactor || "")}</td>
+                <td>${escapeHtml(v.dropRate || "")}</td>
+                <td>${escapeHtml(v.estimatedEnd || "")}</td>
                 <td>${escapeHtml(v.site)}</td>
                 <td>${escapeHtml(v.remarks)}</td>
+                <td>${escapeHtml(v.nurse || "")}</td>
+                <td>${v.done ? "Done" : "Ongoing"}</td>
+                <td>${escapeHtml(v.endedAt || "")}</td>
               </tr>
-            `).join("") || `<tr><td colspan="7">No entries</td></tr>`}
+            `).join("") || `<tr><td colspan="13">No entries</td></tr>`}
           </tbody>
         </table>
 
         <h3 style="margin-top:16px;">Medication Sheet</h3>
         <table class="print-table">
           <thead>
-            <tr><th>Date</th><th>Time</th><th>Medication</th><th>Route</th><th>Dose</th><th>Frequency</th><th>Type</th><th>Given</th></tr>
+            <tr><th>Date</th><th>Scheduled Time Given</th><th>Medication</th><th>Route</th><th>Dose</th><th>Frequency</th><th>Type</th><th>Given</th></tr>
           </thead>
           <tbody>
             ${sortByLatest(rec.medications).slice(0,15).map(m => `
@@ -2138,7 +2316,15 @@
 
       const data = sortByLatest(rec.vitals).slice().reverse();
 
-      const margin = {left:80,right:60,top:40,bottom:120};
+      /*
+        Nursing-style V/S graph layout:
+        - Far-left scale = PR/HR values
+        - Left scale = Temperature values
+        - Right side = actual plotted graph
+        - Time labels are placed above the graph
+        - BP remains listed below the graph
+      */
+      const margin = {left:160,right:40,top:88,bottom:96};
       const chartW = W - margin.left - margin.right;
       const chartH = H - margin.top - margin.bottom;
 
@@ -2157,82 +2343,103 @@
         return margin.left + (chartW/(Math.max(data.length-1,1)))*i;
       });
 
+      // Left label columns
+      const hrScaleX = 46;
+      const tempScaleX = 112;
+      const graphLeft = margin.left;
+      const graphRight = margin.left + chartW;
+      const graphTop = margin.top;
+      const graphBottom = margin.top + chartH;
+
+      ctx.fillStyle="#111";
+      ctx.font="bold 13px Arial";
+      ctx.textAlign="center";
+      ctx.fillText("PR", hrScaleX, 24);
+      ctx.fillText("TEMP", tempScaleX, 24);
+
+      // Scale column guides
+      ctx.strokeStyle="#b8c2cc";
+      ctx.lineWidth=1;
+      ctx.beginPath();
+      ctx.moveTo(hrScaleX+30, graphTop);
+      ctx.lineTo(hrScaleX+30, graphBottom);
+      ctx.moveTo(tempScaleX+32, graphTop);
+      ctx.lineTo(tempScaleX+32, graphBottom);
+      ctx.stroke();
+
+      // Horizontal grid lines
       ctx.strokeStyle="#ddd";
       ctx.lineWidth=1;
       for(let i=0;i<=12;i++){
-        let y=margin.top+(chartH/12)*i;
+        let y=graphTop+(chartH/12)*i;
         ctx.beginPath();
-        ctx.moveTo(margin.left,y);
-        ctx.lineTo(margin.left+chartW,y);
+        ctx.moveTo(graphLeft,y);
+        ctx.lineTo(graphRight,y);
         ctx.stroke();
       }
 
+      // Vertical grid lines for each V/S entry
       for(let i=0;i<data.length;i++){
         let x=xPos[i];
         ctx.beginPath();
-        ctx.moveTo(x,margin.top);
-        ctx.lineTo(x,margin.top+chartH);
+        ctx.moveTo(x,graphTop);
+        ctx.lineTo(x,graphBottom);
         ctx.stroke();
       }
 
+      // Chart border
       ctx.strokeStyle="#999";
-      ctx.strokeRect(margin.left, margin.top, chartW, chartH);
+      ctx.strokeRect(graphLeft, graphTop, chartW, chartH);
 
-      ctx.fillStyle="#111";
-      ctx.font="12px Arial";
+      // HR scale at far-left
       ctx.textAlign="right";
       ctx.textBaseline="middle";
-      for(let t=tempMin; t<=tempMax; t+=0.5){
-        const y=tempY(t);
-        if(Math.abs(t-Math.round(t))<0.001){
-          ctx.fillText(`${t.toFixed(0)}°C`, margin.left-10, y);
-        }
-      }
-
-      ctx.textAlign="left";
-      for(let hr=hrMin; hr<=hrMax; hr+=10){
-        const y=hrY(hr);
-        ctx.fillText(`${hr}`, margin.left+chartW+10, y);
-      }
-
-      ctx.save();
-      ctx.translate(24, margin.top + chartH/2);
-      ctx.rotate(-Math.PI/2);
-      ctx.textAlign="center";
-      ctx.font="bold 13px Arial";
-      ctx.fillStyle="#111";
-      ctx.fillText("Temperature", 0, 0);
-      ctx.restore();
-
-      ctx.save();
-      ctx.translate(W-12, margin.top + chartH/2);
-      ctx.rotate(Math.PI/2);
-      ctx.textAlign="center";
-      ctx.font="bold 13px Arial";
-      ctx.fillStyle="red";
-      ctx.fillText("Heart Rate", 0, 0);
-      ctx.restore();
-
-      ctx.textAlign="center";
-      ctx.textBaseline="top";
       ctx.font="12px Arial";
-      ctx.fillStyle="#111";
+      ctx.fillStyle="red";
+      for(let hr=hrMin; hr<=hrMax; hr+=20){
+        const y=hrY(hr);
+        ctx.fillText(`${hr}`, hrScaleX+24, y);
+      }
 
+      // Temperature scale beside HR scale, still on the left
+      ctx.fillStyle="#111";
+      for(let t=tempMin; t<=tempMax; t+=1){
+        const y=tempY(t);
+        ctx.fillText(`${t.toFixed(0)}°`, tempScaleX+24, y);
+      }
+
+      // Top labels: Date / Time / Shift
+      ctx.textAlign="center";
+      ctx.textBaseline="bottom";
+      ctx.font="11px Arial";
+      ctx.fillStyle="#111";
       data.forEach((d,i)=>{
-        let x=xPos[i];
-        ctx.fillText(d.date || "", x, margin.top+chartH+15);
-        ctx.fillText(d.time || "", x, margin.top+chartH+30);
-        ctx.fillText(d.shift || "", x, margin.top+chartH+45);
-        ctx.font="bold 12px Arial";
-        ctx.fillText(d.bp || "", x, margin.top+chartH+70);
-        ctx.font="12px Arial";
+        const x=xPos[i];
+        ctx.fillText(d.date || "", x, graphTop-48);
+        ctx.fillText(d.time || "", x, graphTop-32);
+        ctx.fillText(d.shift || "", x, graphTop-16);
       });
 
-      ctx.textAlign="left";
+      ctx.textAlign="right";
+      ctx.font="bold 11px Arial";
+      ctx.fillStyle="#145da0";
+      ctx.fillText("DATE", graphLeft-8, graphTop-48);
+      ctx.fillText("TIME", graphLeft-8, graphTop-32);
+      ctx.fillText("SHIFT", graphLeft-8, graphTop-16);
+
+      // Bottom BP row
+      ctx.textAlign="center";
+      ctx.textBaseline="top";
       ctx.font="bold 12px Arial";
       ctx.fillStyle="#145da0";
-      ctx.fillText("BP:", margin.left, margin.top+chartH+70);
+      data.forEach((d,i)=>{
+        const x=xPos[i];
+        ctx.fillText(d.bp || "", x, graphBottom+34);
+      });
+      ctx.textAlign="right";
+      ctx.fillText("BP", graphLeft-8, graphBottom+34);
 
+      // Temperature line: black
       const tempPoints = data.map((d,i)=>{
         let t=Number(d.temp);
         if(Number.isNaN(t)) return null;
@@ -2257,6 +2464,7 @@
         });
       }
 
+      // PR/HR line: red
       const hrPoints = data.map((d,i)=>{
         let h=Number(d.pulse);
         if(Number.isNaN(h)) return null;
@@ -2281,15 +2489,19 @@
         });
       }
 
+      // Legend
+      ctx.textAlign="left";
+      ctx.textBaseline="alphabetic";
       ctx.fillStyle="black";
-      ctx.fillRect(margin.left, 10, 18, 3);
+      ctx.fillRect(graphLeft, 14, 18, 3);
       ctx.fillStyle="#111";
-      ctx.fillText("Temperature", margin.left+60, 4);
+      ctx.font="12px Arial";
+      ctx.fillText("Temperature", graphLeft+24, 18);
 
       ctx.fillStyle="red";
-      ctx.fillRect(margin.left+180, 10, 18, 3);
+      ctx.fillRect(graphLeft+140, 14, 18, 3);
       ctx.fillStyle="#111";
-      ctx.fillText("Heart Rate", margin.left+240, 4);
+      ctx.fillText("PR / HR", graphLeft+164, 18);
     }
 
     function renderAll(){
@@ -2310,12 +2522,6 @@
     }
 
     document.getElementById("saveDemographicBtn").addEventListener("click", () => {
-      let rec = getCurrentRecord();
-      if(!rec){
-        createNewPatientRecord();
-        rec = getCurrentRecord();
-      }
-
       const patientName = val("patientName");
       const birthday = val("birthday");
 
@@ -2324,14 +2530,23 @@
         return;
       }
 
+      let rec = getCurrentRecord();
+      if(!rec){
+        rec = createNewPatientRecordWithoutRender();
+      }
+
+      const hospitalNumber = rec.patient?.hospitalNumber || val("hospitalNumber") || generateSixDigitHospitalNumber();
+
       rec.patient = {
         patientName,
         birthday,
         ageDisplay: calculateAgeYMD(birthday),
         sex: val("sex"),
+        patientCategory: val("patientCategory"),
         religion: val("religion"),
         bloodType: val("bloodType"),
-        hospitalNumber: val("hospitalNumber"),
+        hospitalNumber,
+        attendingPhysician: val("attendingPhysician"),
         municipality: val("municipality"),
         barangay: val("barangay"),
         streetAddress: val("streetAddress"),
@@ -2401,17 +2616,19 @@
         pulse: val("vsPulse"),
         resp: val("vsResp"),
         bp: val("vsBP"),
-        o2: val("vsO2")
+        o2: val("vsO2"),
+        loc: val("vsLOC"),
+        nurse: val("vsNurse")
       };
 
-      if(!entry.date || !entry.time || !entry.shift){
-        alert("Date, time, and shift are required.");
+      if(!entry.date || !entry.time || !entry.shift || !entry.nurse){
+        alert("Date, time, shift, and nurse who took the vital signs are required.");
         return;
       }
 
       rec.vitals.unshift(entry);
       saveState();
-      ["vsDate","vsTime","vsShift","vsTemp","vsPulse","vsResp","vsBP","vsO2"].forEach(id => setVal(id,""));
+      ["vsDate","vsTime","vsShift","vsTemp","vsPulse","vsResp","vsBP","vsO2","vsLOC","vsNurse"].forEach(id => setVal(id,""));
     });
 
     document.getElementById("addIoBtn").addEventListener("click", () => {
@@ -2468,30 +2685,103 @@
       ["docOrderDate","docOrderTime","docOrderPhysician","docOrderText","docOrderNurse"].forEach(id => setVal(id,""));
     });
 
+
+    function computeIvDropRate(){
+      const rate = Number(val("ivRate"));
+      const dropFactor = Number(val("ivDropFactor"));
+      if(!rate || !dropFactor){
+        setVal("ivDropRate", "");
+        return "";
+      }
+      const drops = Math.round((rate * dropFactor) / 60);
+      const text = `${drops} gtts/min`;
+      setVal("ivDropRate", text);
+      return text;
+    }
+
+    function toDateTimeLocalValue(date){
+      const yyyy = date.getFullYear();
+      const mm = String(date.getMonth() + 1).padStart(2, "0");
+      const dd = String(date.getDate()).padStart(2, "0");
+      const hh = String(date.getHours()).padStart(2, "0");
+      const min = String(date.getMinutes()).padStart(2, "0");
+      return `${yyyy}-${mm}-${dd}T${hh}:${min}`;
+    }
+
+    function computeIvEstimatedEnd(){
+      const date = val("ivDate");
+      const time = val("ivTime");
+      const volume = Number(val("ivVolume"));
+      const rate = Number(val("ivRate"));
+      computeIvDropRate();
+      if(!date || !time || !volume || !rate) return "";
+      const start = new Date(`${date}T${time}`);
+      if(Number.isNaN(start.getTime())) return "";
+      const end = new Date(start.getTime() + (volume / rate) * 60 * 60 * 1000);
+      const endValue = toDateTimeLocalValue(end);
+      setVal("ivEstimatedEnd", endValue);
+      return endValue;
+    }
+
+    ["ivDate","ivTime","ivVolume","ivRate","ivDropFactor"].forEach(id => {
+      document.getElementById(id).addEventListener("input", computeIvEstimatedEnd);
+      document.getElementById(id).addEventListener("change", computeIvEstimatedEnd);
+    });
+
     document.getElementById("addIvBtn").addEventListener("click", () => {
       const rec = getCurrentRecord();
       if(!rec){
         alert("Please create or select a patient record first.");
         return;
       }
+      const estimatedEnd = computeIvEstimatedEnd();
+      const dropRate = computeIvDropRate();
       const entry = {
+        id: cryptoRandom(),
         date: val("ivDate"),
         time: val("ivTime"),
         fluid: val("ivFluid"),
         volume: val("ivVolume"),
         rate: val("ivRate"),
+        dropFactor: val("ivDropFactor"),
+        dropRate,
+        estimatedEnd,
         site: val("ivSite"),
         remarks: val("ivRemarks"),
-        nurse: val("ivNurse")
+        nurse: val("ivNurse"),
+        done: false,
+        endedAt: ""
       };
-      if(!entry.date || !entry.time || !entry.fluid){
-        alert("IV date, time, and fluid are required.");
+      if(!entry.date || !entry.time || !entry.fluid || !entry.volume || !entry.rate || !entry.dropFactor || !entry.site){
+        alert("IV date, time, fluid, volume, rate, drop factor, and IV site are required.");
         return;
       }
       rec.iv.unshift(entry);
       saveState();
-      ["ivDate","ivTime","ivFluid","ivVolume","ivRate","ivSite","ivRemarks","ivNurse"].forEach(id => setVal(id,""));
+      ["ivDate","ivTime","ivFluid","ivVolume","ivRate","ivDropFactor","ivDropRate","ivEstimatedEnd","ivSite","ivRemarks","ivNurse"].forEach(id => setVal(id,""));
     });
+
+
+    const medFrequencySchedules = {
+      OD: ["8:00 AM"],
+      BID: ["6:00 AM", "8:00 PM"],
+      TID: ["6:00 AM", "1:00 PM", "8:00 PM"],
+      QID: ["6:00 AM", "12:00 NN", "6:00 PM", "12:00 MN"],
+      STAT: ["STAT / Now"],
+      PRN: ["PRN / As needed"],
+      Others: ["Manual / As ordered"]
+    };
+
+    function updateMedTimeOptions(){
+      const frequency = val("medFrequency");
+      const medTime = document.getElementById("medTime");
+      const options = medFrequencySchedules[frequency] || [];
+      medTime.innerHTML = options.length
+        ? `<option value="">Select scheduled time</option>` + options.map(t => `<option value="${escapeHtml(t)}">${escapeHtml(t)}</option>`).join("")
+        : `<option value="">Select frequency first</option>`;
+    }
+
+    document.getElementById("medFrequency").addEventListener("change", updateMedTimeOptions);
 
     document.getElementById("addMedBtn").addEventListener("click", () => {
       const rec = getCurrentRecord();
@@ -2509,13 +2799,14 @@
         type: val("medType"),
         given: val("medGiven")
       };
-      if(!entry.date || !entry.time || !entry.name){
-        alert("Medication date, time, and name are required.");
+      if(!entry.date || !entry.time || !entry.name || !entry.frequency){
+        alert("Medication date, frequency, scheduled time, and name are required.");
         return;
       }
       rec.medications.unshift(entry);
       saveState();
-      ["medDate","medTime","medName","medRoute","medDose","medFrequency","medType","medGiven"].forEach(id => setVal(id,""));
+      ["medDate","medName","medRoute","medDose","medFrequency","medType","medGiven"].forEach(id => setVal(id,""));
+      updateMedTimeOptions();
     });
 
     document.getElementById("addLabBtn").addEventListener("click", () => {
@@ -2562,6 +2853,10 @@
       rec.fdarNotes.unshift(entry);
       saveState();
       ["fdarDate","fdarTime","fdarAuthor","fdarFocus","fdarData","fdarAction","fdarResponse"].forEach(id => setVal(id,""));
+    });
+
+    document.getElementById("patientSearchInput").addEventListener("input", () => {
+      renderSearchPatients(val("patientSearchInput"));
     });
 
     document.getElementById("patientSearchBtn").addEventListener("click", () => {
