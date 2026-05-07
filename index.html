@@ -503,36 +503,39 @@
       <h2 style="margin-top:0; color:var(--blue-dark);">Data Privacy Notice</h2>
 
       <p>
-        This Prototype Hospital Information System by MSH collects patient information for healthcare documentation,
-        continuity of care, patient monitoring, treatment planning, clinical communication, and institutional record keeping.
+        This Prototype Hospital Information System by MSH is intended for authorized academic and clinical simulation use only.
+        Patient information encoded in this system must be treated as confidential health information and must not be accessed,
+        shared, copied, or disclosed without proper authorization.
       </p>
 
       <p>
-        Data is collected through direct user input by authorized personnel, including but not limited to patient demographic details,
-        assessments, FDAR notes, medication records, laboratory data, doctor’s orders, vital signs, intake and output records,
-        and related clinical documentation.
+        The system collects only necessary information for documentation and monitoring, including patient demographics,
+        assessments, vital signs, intake and output, doctor’s orders, IV therapy, medication records, laboratory requests,
+        and FDAR nursing notes.
       </p>
 
       <p>
-        The information entered in this system shall be used only for legitimate healthcare, academic, clinical simulation,
-        and authorized patient-care-related purposes, in accordance with confidentiality obligations and applicable privacy standards.
+        Data is collected through direct user input by an authorized user. The user is responsible for ensuring accuracy,
+        privacy, confidentiality, and ethical use of the encoded electronic health record.
       </p>
 
       <p>
-        Records shall be retained and disposed of in accordance with applicable retention requirements. For this prototype notice,
-        patient records may be retained for up to <b>25 years</b>, or released and transferred when there is a lawful
-        <b>transfer of care to another hospital or healthcare facility</b>, subject to proper authorization and documentation.
+        To safeguard patient information, access is controlled through login authentication, and users must review and agree
+        to this notice before using the system. Users must log out after use, avoid leaving the device unattended, and handle
+        printed patient charts securely.
       </p>
 
       <p>
-        By clicking <b>I Agree</b>, the user acknowledges responsibility to protect patient confidentiality and to use this system
-        only within authorized and ethical healthcare practice.
+        Records may be retained for up to <b>25 years</b> or transferred lawfully during transfer of care to another hospital
+        or healthcare facility. After the retention period or once records are no longer needed, digital records shall be
+        permanently deleted from browser/local storage, while printed records shall be shredded or securely disposed of to
+        prevent unauthorized access or disclosure.
       </p>
 
-      <label style="display:flex; gap:10px; align-items:flex-start; font-weight:normal;">
-        <input id="dontShowPrivacyAgain" type="checkbox" style="width:auto; margin-top:2px;">
-        <span>Do not show this notice again on this device</span>
-      </label>
+      <p>
+        By clicking <b>I Agree</b>, the user acknowledges responsibility to protect patient confidentiality and to use this
+        electronic health record ethically and only for legitimate healthcare, academic, or clinical simulation purposes.
+      </p>
 
       <div style="margin-top:18px; display:flex; justify-content:flex-end; gap:10px;">
         <button class="btn-danger" id="declinePrivacyBtn">Decline</button>
@@ -623,6 +626,11 @@
                 5. Open Printable Patient Chart View when ready.
               </div>
             </div>
+          </div>
+
+          <div class="card">
+            <h3>Pending Tasks</h3>
+            <div id="pendingDashboard" class="summary-box">No pending tasks.</div>
           </div>
         </section>
 
@@ -721,10 +729,18 @@
                   <option>Unknown</option>
                 </select>
               </div>
+              <div>
+                <label>Ward</label>
+                <input id="wardNumber" type="text">
+              </div>
+              <div>
+                <label>Bed #</label>
+                <input id="bedNumber" type="text">
+              </div>
 
               <div>
                 <label>Hospital Number</label>
-                <input id="hospitalNumber" type="text" readonly placeholder="Auto-generated 6-digit no.">
+                <input id="hospitalNumber" type="text" readonly >
               </div>
               <div>
                 <label>Attending Physician</label>
@@ -850,7 +866,90 @@
             <h2>Head-to-Toe Assessment</h2>
             <p class="muted">Complete once before entering vital signs.</p>
 
-            <div class="grid grid-2">
+            
+            <div class="section-title">Neurologic Scoring and Pain Assessment</div>
+            <p class="muted">Pain scale automatically matches the saved demographic age: pediatric clients show Wong-Baker Faces; adult clients show Numeric Pain Scale.</p>
+
+            <div class="grid grid-3">
+              <div>
+                <label>Eye Opening (E)</label>
+                <select id="gcsEye">
+                  <option value="">Select</option>
+                  <option value="4">4 - Spontaneous</option>
+                  <option value="3">3 - To Speech</option>
+                  <option value="2">2 - To Pain</option>
+                  <option value="1">1 - None</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Verbal Response (V)</label>
+                <select id="gcsVerbal">
+                  <option value="">Select</option>
+                  <option value="5">5 - Oriented</option>
+                  <option value="4">4 - Confused</option>
+                  <option value="3">3 - Inappropriate Words</option>
+                  <option value="2">2 - Incomprehensible Sounds</option>
+                  <option value="1">1 - None</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Motor Response (M)</label>
+                <select id="gcsMotor">
+                  <option value="">Select</option>
+                  <option value="6">6 - Obeys Commands</option>
+                  <option value="5">5 - Localizes Pain</option>
+                  <option value="4">4 - Withdraws from Pain</option>
+                  <option value="3">3 - Abnormal Flexion</option>
+                  <option value="2">2 - Abnormal Extension</option>
+                  <option value="1">1 - None</option>
+                </select>
+              </div>
+
+              <div>
+                <label>Total GCS</label>
+                <input id="gcsTotal" type="text" readonly>
+              </div>
+
+              <div>
+                <label>Pain Scale Type</label>
+                <input id="painScaleType" type="text" readonly>
+              </div>
+
+              <div id="adultPainWrap">
+                <label>Adult Numeric Pain Scale</label>
+                <select id="adultPainScale">
+                  <option value="">Select</option>
+                  <option>0 - No Pain</option>
+                  <option>1</option>
+                  <option>2</option>
+                  <option>3</option>
+                  <option>4</option>
+                  <option>5</option>
+                  <option>6</option>
+                  <option>7</option>
+                  <option>8</option>
+                  <option>9</option>
+                  <option>10 - Worst Pain</option>
+                </select>
+              </div>
+
+              <div id="pediaPainWrap" class="hidden">
+                <label>Wong-Baker FACES Pain Scale</label>
+                <select id="pediaPainScale">
+                  <option value="">Select</option>
+                  <option>😀 0 - No Hurt</option>
+                  <option>🙂 2 - Hurts Little Bit</option>
+                  <option>😐 4 - Hurts Little More</option>
+                  <option>😣 6 - Hurts Even More</option>
+                  <option>😭 8 - Hurts Whole Lot</option>
+                  <option>🤯 10 - Hurts Worst</option>
+                </select>
+              </div>
+            </div>
+
+<div class="grid grid-2">
               <div><label>General Appearance</label><textarea id="httGeneral"></textarea></div>
               <div><label>Neurologic / Mental Status</label><textarea id="httNeuro"></textarea></div>
               <div><label>HEENT</label><textarea id="httHeent"></textarea></div>
@@ -889,7 +988,7 @@
               <div><label>Temperature (°C)</label><input id="vsTemp" type="number" step="0.1"></div>
               <div><label>Pulse / HR</label><input id="vsPulse" type="number"></div>
               <div><label>Respiratory Rate</label><input id="vsResp" type="number"></div>
-              <div><label>Blood Pressure</label><input id="vsBP" type="text" placeholder="e.g. 120/80"></div>
+              <div><label>Blood Pressure</label><input id="vsBP" type="text"></div>
               <div><label>O2 Saturation (%)</label><input id="vsO2" type="number"></div>
               <div>
                 <label>LOC</label>
@@ -1037,9 +1136,18 @@
               <textarea id="docOrderText"></textarea>
             </div>
 
-            <div style="margin-top:12px;">
-              <label>Noted / Carried Out By</label>
-              <input id="docOrderNurse" type="text">
+            <div class="grid grid-2" style="margin-top:12px;">
+              <div>
+                <label>Status</label>
+                <select id="docOrderStatus">
+                  <option>Pending</option>
+                  <option>Done</option>
+                </select>
+              </div>
+              <div id="docOrderNurseWrap" class="hidden">
+                <label>Nurse Name</label>
+                <input id="docOrderNurse" type="text">
+              </div>
             </div>
 
             <div style="margin-top:16px;">
@@ -1057,7 +1165,8 @@
                     <th>Time</th>
                     <th>Physician</th>
                     <th>Order</th>
-                    <th>Carried Out By</th>
+                    <th>Status</th>
+                    <th>Nurse</th>
                   </tr>
                 </thead>
                 <tbody id="docOrderTableBody"></tbody>
@@ -1088,6 +1197,7 @@
               </div>
               <div><label>Volume (mL)</label><input id="ivVolume" type="number"></div>
               <div><label>Rate (mL/hr)</label><input id="ivRate" type="number"></div>
+              <div><label>To Run For (Hours)</label><input id="ivRunHours" type="number" step="0.1"></div>
               <div>
                 <label>Drop Factor</label>
                 <select id="ivDropFactor">
@@ -1098,7 +1208,7 @@
                   <option value="60">60 gtts/mL</option>
                 </select>
               </div>
-              <div><label>Computed Drop Rate</label><input id="ivDropRate" type="text" readonly placeholder="Auto gtts/min"></div>
+              <div><label>Computed Drop Rate</label><input id="ivDropRate" type="text" readonly ></div>
               <div><label>Estimated End Time</label><input id="ivEstimatedEnd" type="datetime-local"></div>
               <div>
                 <label>Site</label>
@@ -1135,6 +1245,7 @@
                     <th>Fluid</th>
                     <th>Volume</th>
                     <th>Rate</th>
+                    <th>Run For</th>
                     <th>Drop Factor</th>
                     <th>Drop Rate</th>
                     <th>Estimated End Time</th>
@@ -1161,10 +1272,10 @@
                 <label>Frequency</label>
                 <select id="medFrequency">
                   <option value="">Select</option>
-                  <option value="OD">OD - 8 AM</option>
-                  <option value="BID">BID - 6 AM, 8 PM</option>
-                  <option value="TID">TID - 6 AM, 1 PM, 8 PM</option>
-                  <option value="QID">QID - 6 AM, 12 NN, 6 PM, 12 MN</option>
+                  <option value="OD - 8 AM">OD - 8 AM</option>
+                  <option value="BID - 8 AM, 6 PM">BID - 8 AM, 6 PM</option>
+                  <option value="TID - 8 AM, 1 PM, 6 PM">TID - 8 AM, 1 PM, 6 PM</option>
+                  <option value="QID - 8 AM, 12 PM, 4 PM, 8 PM">QID - 8 AM, 12 PM, 4 PM, 8 PM</option>
                   <option value="STAT">STAT</option>
                   <option value="PRN">PRN</option>
                   <option value="Others">Others</option>
@@ -1208,6 +1319,10 @@
                   <option>No</option>
                 </select>
               </div>
+              <div id="medNurseWrap" class="hidden">
+                <label>Nurse Name</label>
+                <input id="medNurse" type="text">
+              </div>
             </div>
 
             <div style="margin-top:16px;">
@@ -1229,6 +1344,7 @@
                     <th>Frequency</th>
                     <th>Type</th>
                     <th>Given</th>
+                    <th>Nurse</th>
                   </tr>
                 </thead>
                 <tbody id="medTableBody"></tbody>
@@ -1241,7 +1357,7 @@
           <div class="card">
             <h2>Laboratory Sheet</h2>
 
-            <div class="grid grid-3">
+            <div class="grid grid-4">
               <div><label>Date</label><input id="labDate" type="date"></div>
               <div><label>Time</label><input id="labTime" type="time"></div>
               <div>
@@ -1254,16 +1370,13 @@
                   <option>Fecalysis</option>
                 </select>
               </div>
-            </div>
-
-            <div class="grid grid-2" style="margin-top:12px;">
               <div>
-                <label>Results / Values</label>
-                <textarea id="labResults"></textarea>
-              </div>
-              <div>
-                <label>Remarks / Interpretation</label>
-                <textarea id="labRemarks"></textarea>
+                <label>Status</label>
+                <select id="labStatus">
+                  <option>Pending</option>
+                  <option>Done</option>
+                  <option>Results Received</option>
+                </select>
               </div>
             </div>
 
@@ -1281,8 +1394,7 @@
                     <th>Date</th>
                     <th>Time</th>
                     <th>Lab Type</th>
-                    <th>Results</th>
-                    <th>Remarks</th>
+                    <th>Status</th>
                   </tr>
                 </thead>
                 <tbody id="labTableBody"></tbody>
@@ -1485,9 +1597,7 @@
       const active = sessionStorage.getItem(SESSION_KEY) === "active";
       if(active){
         showApp();
-        if(localStorage.getItem(PRIVACY_KEY) !== "yes"){
-          privacyModal.classList.remove("hidden");
-        }
+        privacyModal.classList.remove("hidden");
       }else{
         showLogin();
       }
@@ -1499,9 +1609,7 @@
       if(u === DEMO_USERNAME && p === DEMO_PASSWORD){
         sessionStorage.setItem(SESSION_KEY, "active");
         showApp();
-        if(localStorage.getItem(PRIVACY_KEY) !== "yes"){
-          privacyModal.classList.remove("hidden");
-        }
+        privacyModal.classList.remove("hidden");
         document.getElementById("loginDeniedMessage").textContent = "";
         renderAll();
       }else{
@@ -1523,9 +1631,6 @@
     });
 
     document.getElementById("agreePrivacyBtn").addEventListener("click", () => {
-      if(document.getElementById("dontShowPrivacyAgain").checked){
-        localStorage.setItem(PRIVACY_KEY, "yes");
-      }
       privacyModal.classList.add("hidden");
     });
 
@@ -1665,6 +1770,7 @@
       if(menuBtn) menuBtn.classList.add("active");
       if(pageId === "printablePage") renderPrintableChart();
       if(pageId === "vitalsPage") drawVitalSignsChart();
+      if(pageId === "headToToePage") updatePainScaleVisibility();
     }
 
     document.querySelectorAll("#menu button").forEach(btn => {
@@ -1677,6 +1783,60 @@
 
     document.getElementById("birthday").addEventListener("change", (e) => {
       document.getElementById("ageDisplay").value = calculateAgeYMD(e.target.value);
+    });
+
+
+    function getPainScaleType(){
+      const rec = getCurrentRecord();
+      const age = getAgeInYears(rec?.patient?.birthday);
+      if(age !== null && age < 13){
+        return "Wong-Baker FACES Pain Scale";
+      }
+      return "Adult Numeric Pain Scale";
+    }
+
+    function updatePainScaleVisibility(){
+      const type = getPainScaleType();
+      const painType = document.getElementById("painScaleType");
+      const adultWrap = document.getElementById("adultPainWrap");
+      const pediaWrap = document.getElementById("pediaPainWrap");
+
+      if(painType) painType.value = type;
+
+      if(adultWrap && pediaWrap){
+        if(type === "Wong-Baker FACES Pain Scale"){
+          adultWrap.classList.add("hidden");
+          pediaWrap.classList.remove("hidden");
+        }else{
+          adultWrap.classList.remove("hidden");
+          pediaWrap.classList.add("hidden");
+        }
+      }
+    }
+
+    function computeGCS(){
+      const e = Number(document.getElementById("gcsEye")?.value || 0);
+      const v = Number(document.getElementById("gcsVerbal")?.value || 0);
+      const m = Number(document.getElementById("gcsMotor")?.value || 0);
+      const total = e + v + m;
+      const gcsTotal = document.getElementById("gcsTotal");
+      if(gcsTotal){
+        gcsTotal.value = total ? `E${e || 0} V${v || 0} M${m || 0} = ${total}` : "";
+      }
+    }
+
+    function getSelectedPainScore(){
+      const type = getPainScaleType();
+      if(type === "Wong-Baker FACES Pain Scale"){
+        return document.getElementById("pediaPainScale")?.value || "";
+      }
+      return document.getElementById("adultPainScale")?.value || "";
+    }
+
+
+    ["gcsEye","gcsVerbal","gcsMotor"].forEach(id => {
+      const el = document.getElementById(id);
+      if(el) el.addEventListener("change", computeGCS);
     });
 
     function buildPatientSummaryHtml(rec){
@@ -1704,6 +1864,7 @@
         <div class="patient-banner-grid">
           <div class="patient-banner-item"><b>Name</b>${escapeHtml(p.patientName || "")}</div>
           <div class="patient-banner-item"><b>Hospital No.</b>${escapeHtml(p.hospitalNumber || "")}</div>
+          <div class="patient-banner-item"><b>Ward / Bed #</b>${escapeHtml([p.wardNumber, p.bedNumber].filter(Boolean).join(" / "))}</div>
           <div class="patient-banner-item"><b>Age / Sex</b>${escapeHtml(p.ageDisplay || "")}${p.sex ? " / " + escapeHtml(p.sex) : ""}</div>
           <div class="patient-banner-item"><b>Category</b>${escapeHtml(p.patientCategory || "")}</div>
           <div class="patient-banner-item"><b>Blood Type</b>${escapeHtml(p.bloodType || "")}</div>
@@ -1718,6 +1879,8 @@
           <div class="patient-banner-item"><b>Chief Complaint</b>${escapeHtml(p.cc || "")}</div>
           <div class="patient-banner-item"><b>Emergency Contact</b>${escapeHtml(p.emergencyContact || "")}</div>
           <div class="patient-banner-item"><b>Admission</b>${escapeHtml(p.admissionDateTime || "")}</div>
+          <div class="patient-banner-item"><b>GCS</b>${escapeHtml(rec.headToToe?.gcsTotal || "")}</div>
+          <div class="patient-banner-item"><b>Pain Scale</b>${escapeHtml((rec.headToToe?.painScaleType || "") + (rec.headToToe?.painScore ? " - " + rec.headToToe.painScore : ""))}</div>
 
           <div class="patient-banner-item" style="grid-column: span 4;"><b>Address</b>${escapeHtml(addr || "")}</div>
           <div class="patient-banner-item" style="grid-column: span 4;"><b>Tags / Precautions</b>${escapeHtml(tagList.join(", ") || "None")}</div>
@@ -1747,6 +1910,7 @@
         <b>${escapeHtml(p.patientName)}</b><br>
         Age: ${escapeHtml(p.ageDisplay || "")} | Sex: ${escapeHtml(p.sex || "")} | Category: ${escapeHtml(p.patientCategory || "")} | Religion: ${escapeHtml(p.religion || "")} | Blood Type: ${escapeHtml(p.bloodType || "")}<br>
         Hospital No.: ${escapeHtml(p.hospitalNumber || "")}<br>
+        Ward: ${escapeHtml(p.wardNumber || "")} | Bed #: ${escapeHtml(p.bedNumber || "")}<br>
         Attending Physician: ${escapeHtml(p.attendingPhysician || "")}<br>
         Address: ${escapeHtml(addr)}<br>
         CC: ${escapeHtml(p.cc || "")}<br>
@@ -1789,6 +1953,8 @@
       setVal("patientCategory", p.patientCategory);
       setVal("religion", p.religion);
       setVal("bloodType", p.bloodType);
+      setVal("wardNumber", p.wardNumber);
+      setVal("bedNumber", p.bedNumber);
       if(rec && !p.hospitalNumber){
         p.hospitalNumber = generateSixDigitHospitalNumber();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
@@ -1821,16 +1987,28 @@
     function renderHeadToToeInputs(){
       const rec = getCurrentRecord();
       const h = rec?.headToToe || {};
-      setVal("httGeneral", h.general);
-      setVal("httNeuro", h.neuro);
-      setVal("httHeent", h.heent);
-      setVal("httResp", h.resp);
-      setVal("httCardio", h.cardio);
-      setVal("httGi", h.gi);
-      setVal("httGu", h.gu);
-      setVal("httMs", h.ms);
-      setVal("httSkin", h.skin);
-      setVal("httLines", h.lines);
+
+      setVal("gcsEye", h.gcsEye);
+      setVal("gcsVerbal", h.gcsVerbal);
+      setVal("gcsMotor", h.gcsMotor);
+      setVal("gcsTotal", h.gcsTotal);
+      setVal("painScaleType", h.painScaleType);
+      setVal("adultPainScale", h.adultPainScale);
+      setVal("pediaPainScale", h.pediaPainScale);
+
+      setVal("httGeneral", h.general || h.httGeneral);
+      setVal("httNeuro", h.neuro || h.httNeuro);
+      setVal("httHeent", h.heent || h.httHeent);
+      setVal("httResp", h.resp || h.httResp);
+      setVal("httCardio", h.cardio || h.httCardio);
+      setVal("httGi", h.gi || h.httGi);
+      setVal("httGu", h.gu || h.httGu);
+      setVal("httMs", h.ms || h.httMs);
+      setVal("httSkin", h.skin || h.httSkin);
+      setVal("httLines", h.lines || h.httLines);
+
+      computeGCS();
+      updatePainScaleVisibility();
     }
 
     function renderVitals(){
@@ -1872,6 +2050,7 @@
           <td>${escapeHtml(x.fluid)}</td>
           <td>${escapeHtml(x.volume)}</td>
           <td>${escapeHtml(x.rate)}</td>
+          <td>${escapeHtml(x.runHours || "")}</td>
           <td>${escapeHtml(x.dropFactor || "")}</td>
           <td>${escapeHtml(x.dropRate || "")}</td>
           <td>${escapeHtml(x.estimatedEnd || "")}</td>
@@ -1912,6 +2091,7 @@
           <td>${escapeHtml(x.frequency)}</td>
           <td>${escapeHtml(x.type)}</td>
           <td>${x.given === "Yes" ? '<span class="success">Given</span>' : '<span class="danger">Not Given</span>'}</td>
+          <td>${x.given === "Yes" ? escapeHtml(x.nurse || "") : ""}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -1924,12 +2104,14 @@
       if(!rec) return;
       sortByLatest(rec.doctorsOrders).forEach(x => {
         const tr = document.createElement("tr");
+        if((x.status || "Pending") === "Done") tr.classList.add("completed-row");
         tr.innerHTML = `
           <td>${escapeHtml(x.date)}</td>
           <td>${escapeHtml(x.time)}</td>
           <td>${escapeHtml(x.physician)}</td>
           <td>${escapeHtml(x.order)}</td>
-          <td>${escapeHtml(x.nurse)}</td>
+          <td>${(x.status || "Pending") === "Done" ? '<span class="success">Done</span>' : '<span class="pill-danger">Pending</span>'}</td>
+          <td>${(x.status || "Pending") === "Done" ? escapeHtml(x.nurse || "") : ""}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -1968,12 +2150,12 @@
       if(!rec) return;
       sortByLatest(rec.labs).forEach(x => {
         const tr = document.createElement("tr");
+        if(x.status === "Results Received" || x.status === "Done") tr.classList.add("completed-row");
         tr.innerHTML = `
           <td>${escapeHtml(x.date)}</td>
           <td>${escapeHtml(x.time)}</td>
           <td>${escapeHtml(x.type)}</td>
-          <td>${escapeHtml(x.results)}</td>
-          <td>${escapeHtml(x.remarks)}</td>
+          <td>${x.status === "Pending" ? '<span class="pill-danger">Pending</span>' : '<span class="success">' + escapeHtml(x.status || "") + '</span>'}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -2109,6 +2291,7 @@
           <tr><th>Patient Name</th><td>${escapeHtml(p.patientName || "")}</td><th>Hospital Number</th><td>${escapeHtml(p.hospitalNumber || "")}</td></tr>
           <tr><th>Birthday</th><td>${escapeHtml(p.birthday || "")}</td><th>Age</th><td>${escapeHtml(p.ageDisplay || "")}</td></tr>
           <tr><th>Sex</th><td>${escapeHtml(p.sex || "")}</td><th>Category</th><td>${escapeHtml(p.patientCategory || "")}</td></tr>
+          <tr><th>Ward</th><td>${escapeHtml(p.wardNumber || "")}</td><th>Bed #</th><td>${escapeHtml(p.bedNumber || "")}</td></tr>
           <tr><th>Religion</th><td>${escapeHtml(p.religion || "")}</td><th>Blood Type</th><td>${escapeHtml(p.bloodType || "")}</td></tr>
           <tr><th>Attending Physician</th><td>${escapeHtml(p.attendingPhysician || "")}</td><th>Diet</th><td>${escapeHtml(p.diet || "")}</td></tr>
           <tr><th>Address</th><td colspan="3">${escapeHtml(addr)}</td></tr>
@@ -2127,6 +2310,8 @@
             <col style="width:32%">
             <col style="width:68%">
           </colgroup>
+          <tr><th>GCS</th><td>${escapeHtml(rec.headToToe.gcsTotal || "")}</td></tr>
+          <tr><th>Pain Scale</th><td>${escapeHtml((rec.headToToe.painScaleType || "") + (rec.headToToe.painScore ? " - " + rec.headToToe.painScore : ""))}</td></tr>
           <tr><th>General Appearance</th><td>${escapeHtml(rec.headToToe.general || "")}</td></tr>
           <tr><th>Neurologic / Mental Status</th><td>${escapeHtml(rec.headToToe.neuro || "")}</td></tr>
           <tr><th>HEENT</th><td>${escapeHtml(rec.headToToe.heent || "")}</td></tr>
@@ -2202,7 +2387,7 @@
                 <td>${escapeHtml(d.order)}</td>
                 <td>${escapeHtml(d.nurse)}</td>
               </tr>
-            `).join("") || `<tr><td colspan="5">No entries</td></tr>`}
+            `).join("") || `<tr><td colspan="4">No entries</td></tr>`}
           </tbody>
         </table>
 
@@ -2256,7 +2441,7 @@
         <h3 style="margin-top:16px;">Laboratory Sheet</h3>
         <table class="print-table">
           <thead>
-            <tr><th>Date</th><th>Time</th><th>Type</th><th>Results</th><th>Remarks</th></tr>
+            <tr><th>Date</th><th>Time</th><th>Type</th><th>Status</th></tr>
           </thead>
           <tbody>
             ${sortByLatest(rec.labs).slice(0,10).map(l => `
@@ -2264,8 +2449,7 @@
                 <td>${escapeHtml(l.date)}</td>
                 <td>${escapeHtml(l.time)}</td>
                 <td>${escapeHtml(l.type)}</td>
-                <td>${escapeHtml(l.results)}</td>
-                <td>${escapeHtml(l.remarks)}</td>
+                <td>${escapeHtml(l.status || "")}</td>
               </tr>
             `).join("") || `<tr><td colspan="5">No entries</td></tr>`}
           </tbody>
@@ -2504,8 +2688,32 @@
       ctx.fillText("PR / HR", graphLeft+164, 18);
     }
 
+
+    function renderPendingDashboard(){
+      const rec = getCurrentRecord();
+      const box = document.getElementById("pendingDashboard");
+      if(!box) return;
+      if(!rec){
+        box.innerHTML = "No patient selected.";
+        return;
+      }
+
+      const pendingOrders = (rec.doctorsOrders || []).filter(x => (x.status || "Pending") === "Pending");
+      const pendingLabs = (rec.labs || []).filter(x => (x.status || "Pending") === "Pending");
+      const pendingMeds = (rec.medications || []).filter(x => x.given === "No");
+      const activeIV = (rec.iv || []).filter(x => !x.done);
+
+      let html = "";
+      if(pendingOrders.length) html += `<div class="pill-danger">${pendingOrders.length} Pending Doctor’s Order/s</div><br><br>`;
+      if(pendingLabs.length) html += `<div class="pill-danger">${pendingLabs.length} Pending Laboratory Request/s</div><br><br>`;
+      if(pendingMeds.length) html += `<div class="pill-danger">${pendingMeds.length} Medication/s Not Given</div><br><br>`;
+      if(activeIV.length) html += `<div class="pill-danger">${activeIV.length} IV Fluid/s Not Yet Marked Done</div>`;
+      box.innerHTML = html || `<span class="success">No pending tasks.</span>`;
+    }
+
     function renderAll(){
       renderDashboard();
+      renderPendingDashboard();
       renderStickyBanner();
       renderDemographicInputs();
       renderHeadToToeInputs();
@@ -2581,7 +2789,20 @@
         alert("Please create or select a patient record first.");
         return;
       }
+
+      computeGCS();
+      updatePainScaleVisibility();
+
       rec.headToToe = {
+        gcsEye: val("gcsEye"),
+        gcsVerbal: val("gcsVerbal"),
+        gcsMotor: val("gcsMotor"),
+        gcsTotal: val("gcsTotal"),
+        painScaleType: val("painScaleType"),
+        adultPainScale: val("adultPainScale"),
+        pediaPainScale: val("pediaPainScale"),
+        painScore: getSelectedPainScore(),
+
         general: val("httGeneral"),
         neuro: val("httNeuro"),
         heent: val("httHeent"),
@@ -2593,6 +2814,7 @@
         skin: val("httSkin"),
         lines: val("httLines")
       };
+
       saveState();
       alert("Head-to-toe assessment saved.");
     });
@@ -2669,20 +2891,28 @@
         alert("Please create or select a patient record first.");
         return;
       }
+      const status = val("docOrderStatus") || "Pending";
       const entry = {
         date: val("docOrderDate"),
         time: val("docOrderTime"),
         physician: val("docOrderPhysician"),
         order: val("docOrderText"),
-        nurse: val("docOrderNurse")
+        status,
+        nurse: status === "Done" ? val("docOrderNurse") : ""
       };
       if(!entry.date || !entry.time || !entry.order){
         alert("Doctor's order date, time, and order text are required.");
         return;
       }
+      if(entry.status === "Done" && !entry.nurse){
+        alert("Please enter the nurse name if the order is marked Done.");
+        return;
+      }
       rec.doctorsOrders.unshift(entry);
       saveState();
-      ["docOrderDate","docOrderTime","docOrderPhysician","docOrderText","docOrderNurse"].forEach(id => setVal(id,""));
+      ["docOrderDate","docOrderTime","docOrderPhysician","docOrderText","docOrderStatus","docOrderNurse"].forEach(id => setVal(id,""));
+      setVal("docOrderStatus", "Pending");
+      updateDocOrderNurseVisibility();
     });
 
 
@@ -2713,17 +2943,20 @@
       const time = val("ivTime");
       const volume = Number(val("ivVolume"));
       const rate = Number(val("ivRate"));
+      const runHours = Number(val("ivRunHours"));
       computeIvDropRate();
-      if(!date || !time || !volume || !rate) return "";
+      if(!date || !time) return "";
       const start = new Date(`${date}T${time}`);
       if(Number.isNaN(start.getTime())) return "";
-      const end = new Date(start.getTime() + (volume / rate) * 60 * 60 * 1000);
+      const hours = runHours || (volume && rate ? volume / rate : 0);
+      if(!hours) return "";
+      const end = new Date(start.getTime() + hours * 60 * 60 * 1000);
       const endValue = toDateTimeLocalValue(end);
       setVal("ivEstimatedEnd", endValue);
       return endValue;
     }
 
-    ["ivDate","ivTime","ivVolume","ivRate","ivDropFactor"].forEach(id => {
+    ["ivDate","ivTime","ivVolume","ivRate","ivRunHours","ivDropFactor"].forEach(id => {
       document.getElementById(id).addEventListener("input", computeIvEstimatedEnd);
       document.getElementById(id).addEventListener("change", computeIvEstimatedEnd);
     });
@@ -2743,6 +2976,7 @@
         fluid: val("ivFluid"),
         volume: val("ivVolume"),
         rate: val("ivRate"),
+        runHours: val("ivRunHours"),
         dropFactor: val("ivDropFactor"),
         dropRate,
         estimatedEnd,
@@ -2758,7 +2992,7 @@
       }
       rec.iv.unshift(entry);
       saveState();
-      ["ivDate","ivTime","ivFluid","ivVolume","ivRate","ivDropFactor","ivDropRate","ivEstimatedEnd","ivSite","ivRemarks","ivNurse"].forEach(id => setVal(id,""));
+      ["ivDate","ivTime","ivFluid","ivVolume","ivRate","ivRunHours","ivDropFactor","ivDropRate","ivEstimatedEnd","ivSite","ivRemarks","ivNurse"].forEach(id => setVal(id,""));
     });
 
 
@@ -2783,6 +3017,20 @@
 
     document.getElementById("medFrequency").addEventListener("change", updateMedTimeOptions);
 
+    function updateDocOrderNurseVisibility(){
+      const show = val("docOrderStatus") === "Done";
+      document.getElementById("docOrderNurseWrap").classList.toggle("hidden", !show);
+      if(!show) setVal("docOrderNurse", "");
+    }
+    document.getElementById("docOrderStatus").addEventListener("change", updateDocOrderNurseVisibility);
+
+    function updateMedNurseVisibility(){
+      const show = val("medGiven") === "Yes";
+      document.getElementById("medNurseWrap").classList.toggle("hidden", !show);
+      if(!show) setVal("medNurse", "");
+    }
+    document.getElementById("medGiven").addEventListener("change", updateMedNurseVisibility);
+
     document.getElementById("addMedBtn").addEventListener("click", () => {
       const rec = getCurrentRecord();
       if(!rec){
@@ -2797,16 +3045,22 @@
         dose: val("medDose"),
         frequency: val("medFrequency"),
         type: val("medType"),
-        given: val("medGiven")
+        given: val("medGiven"),
+        nurse: val("medGiven") === "Yes" ? val("medNurse") : ""
       };
       if(!entry.date || !entry.time || !entry.name || !entry.frequency){
         alert("Medication date, frequency, scheduled time, and name are required.");
         return;
       }
+      if(entry.given === "Yes" && !entry.nurse){
+        alert("Please enter the nurse name if the medication was given.");
+        return;
+      }
       rec.medications.unshift(entry);
       saveState();
-      ["medDate","medName","medRoute","medDose","medFrequency","medType","medGiven"].forEach(id => setVal(id,""));
+      ["medDate","medName","medRoute","medDose","medFrequency","medType","medGiven","medNurse"].forEach(id => setVal(id,""));
       updateMedTimeOptions();
+      updateMedNurseVisibility();
     });
 
     document.getElementById("addLabBtn").addEventListener("click", () => {
@@ -2819,8 +3073,7 @@
         date: val("labDate"),
         time: val("labTime"),
         type: val("labType"),
-        results: val("labResults"),
-        remarks: val("labRemarks")
+        status: val("labStatus") || "Pending"
       };
       if(!entry.date || !entry.time || !entry.type){
         alert("Lab date, time, and type are required.");
@@ -2828,7 +3081,8 @@
       }
       rec.labs.unshift(entry);
       saveState();
-      ["labDate","labTime","labType","labResults","labRemarks"].forEach(id => setVal(id,""));
+      ["labDate","labTime","labType","labStatus"].forEach(id => setVal(id,""));
+      setVal("labStatus", "Pending");
     });
 
     document.getElementById("addFdarBtn").addEventListener("click", () => {
